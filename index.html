@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Pokémon Flash</title>
+  <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
+  <style>
+  html {
+    font-size: calc(100vw / 3.75);
+  }
+  .img {
+    width: 256px;
+    height: 256px;
+    background: url("./collection_min.png") 6144px 5888px no-repeat;
+    background-position: -512px 0;
+    pointer-events: none;
+    transform: translate(0, -4%);
+  }
+  .app {
+    background-image: url("./bg_min.jpeg");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .footer {
+    position: absolute;
+    bottom: 3.5vh;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: .12rem;
+    color: #fbfbfb;
+    text-shadow: 0 0 .04rem #000;
+    font-family: Arial, Helvetica, sans-serif;
+    transform: scale(.8, .8);
+    transform-origin: center bottom;
+  }
+  .btn {
+    background: white;
+    width: 1rem;
+    margin: 5vw auto 0;
+    line-height: .3rem;
+    text-align: center;
+    font-size: .16rem;
+    letter-spacing: .01rem;
+    text-shadow: 0 0 .01rem #000;
+    font-family: Arial, Helvetica, sans-serif;
+    position: relative;
+    padding-left: .2rem;
+    padding-right: .06rem;
+    box-sizing: border-box;
+    font-weight: bold;
+    border-radius: .2rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border: .03rem solid #000;
+    box-shadow: 0px .04rem 0px 0px rgba(0, 0, 0, 1);
+    transition: all ease .1s;
+    left: .04rem;
+  }
+  .btn:active {
+    transform: translate(0, .04rem);
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+  }
+  .btn:active img {
+    filter: drop-shadow(0px 0px 0px rgba(0, 0, 0, 1));
+  }
+  .btn img {
+    height: .44rem;
+    position: absolute;
+    left: 0;
+    top: 48%;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0px .04rem 0px rgba(0, 0, 0, 1));
+    transition: all ease .1s;
+  }
+  * {
+    user-select: none;
+    -webkit-user-select: none;
+    backface-visibility: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  audio {
+    display: none;
+  }
+  </style>
+</head>
+<body>
+  <audio src="./bgm.mp3?v=1" loop id="music_bgm"></audio>
+  <audio src="./get.mp3?v=1" id="music_get"></audio>
+  <div class="app">
+    <div>
+      <div class="img"></div>
+      <div class="btn">
+        <img src="./ball.webp">
+        <div class="btn-text">START</div>
+      </div>
+    </div>
+    <div class="footer">
+      <div>素材来自互联网 仅供娱乐学习</div>
+      <div>@程序员阿瓜</div>
+    </div>
+  </div>
+  <script>
+    const img = document.querySelector(".img");
+    let rafId = null;
+    const FPS = 60;
+    const FRAME_TIME = 1000 / FPS; // ~16.67ms
+    let lastTime = 0;
+    let accumulator = 0;
+    let indexList = [];
+    const total = 542;
+
+    const bgm = new Howl({
+      src: ['./bgm.mp3'],
+      loop: true,
+    });
+    const get = new Howl({
+      src: ['./get.mp3'],
+    });
+
+    const getRandomIndex = () => {
+      for (let i = 0; i < total; i += 1) {
+        indexList.push(i);
+      }
+      indexList.sort(() => Math.random() - 0.5);
+    }
+
+    const stepFrame = () => {
+      const index = indexList.shift();
+      const row = Math.floor(index / 24);
+      const col = index % 24;
+      img.style.backgroundPosition = `-${col * 256}px -${row * 256}px`;
+      if (indexList.length === 0) {
+        getRandomIndex();
+      }
+    };
+
+    const loop = (time) => {
+      if (lastTime === 0) {
+        lastTime = time;
+      }
+      const dt = time - lastTime;
+      lastTime = time;
+      accumulator += dt;
+
+      // 以目标60帧的间隔推进动画帧
+      while (accumulator >= FRAME_TIME) {
+        stepFrame();
+        accumulator -= FRAME_TIME;
+      }
+
+      rafId = requestAnimationFrame(loop);
+    };
+
+    const app = document.querySelector(".app");
+    app.addEventListener("click", (e) => e.stopPropagation());
+
+    const btn = document.querySelector(".btn");
+    const btnText = document.querySelector(".btn-text");
+    btn.addEventListener("click", () => {
+      if (rafId === null) {
+        // 开始动画
+        lastTime = 0;
+        accumulator = 0;
+        getRandomIndex();
+        rafId = requestAnimationFrame(loop);
+        btnText.innerHTML = 'STOP';
+        bgm.play();
+        get.stop();
+      } else {
+        btnText.innerHTML = 'START';
+        // 停止动画
+        cancelAnimationFrame(rafId);
+        rafId = null;
+        lastTime = 0;
+        accumulator = 0;
+        bgm.stop();
+        get.play();
+      }
+    });
+  </script>
+</body>
+</html>
