@@ -3,6 +3,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Pokémon Flash</title>
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
@@ -15,13 +16,13 @@
   .img {
     width: 256px;
     height: 256px;
-    background: url("./collection_min.png") 6144px 5888px no-repeat;
+    background: url("./assets/imgs/collection_min.png") 6144px 5888px no-repeat;
     background-position: -512px 0;
     pointer-events: none;
     transform: translate(0, -4%);
   }
   .app {
-    background-image: url("./bg_min.jpeg");
+    background-image: url("./assets/imgs/bg_min.jpeg");
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -47,6 +48,25 @@
     font-family: Arial, Helvetica, sans-serif;
     transform: scale(.8, .8);
     transform-origin: center bottom;
+  }
+  .footer a:visited {
+    color: #000;
+  }
+  .footer a img {
+    height: .14rem;
+    vertical-align: text-bottom;
+    margin-right: .04rem;
+  }
+  .capsule {
+    background: white;
+    color: #000;
+    text-shadow: none;
+    text-decoration: none;
+    line-height: .2rem;
+    border-radius: .1rem;
+    padding: 0 .06rem;
+    display: inline-block;
+    margin-top: .04rem;
   }
   .btn {
     background: white;
@@ -115,8 +135,8 @@
   </style>
 </head>
 <body>
-  <audio src="./bgm.mp3?v=1" loop id="music_bgm"></audio>
-  <audio src="./get.mp3?v=1" id="music_get"></audio>
+  <audio src="./assets/audios/bgm.mp3?v=1" loop id="music_bgm"></audio>
+  <audio src="./assets/audios/get.mp3?v=1" id="music_get"></audio>
   <div class="app">
     <div class="loading">Loading...</div>
     <div class="content" style="display: none;">
@@ -125,7 +145,7 @@
       </div>
       <div class="animate__animated animate__bounceInRight" style="animation-delay: .2s;">
         <div class="btn">
-          <img src="./ball.webp">
+          <img src="./assets/imgs/ball.webp">
           <div class="btn-text">START</div>
         </div>
       </div>
@@ -134,6 +154,7 @@
       <div class="animate__animated animate__bounceInRight" style="animation-delay: .4s;">
         <div>素材来自互联网 仅供娱乐学习</div>
         <div>@程序员阿瓜</div>
+        <div><a class="capsule" href="https://github.com/cxyagua/pokemon-flash" target="_blank" rel="noopener noreferrer"><img src="./assets/imgs/github.svg" alt="GitHub">GitHub仓库</a></div>
       </div>
     </div>
   </div>
@@ -149,16 +170,16 @@
     
     // 音乐
     const bgm = new Howl({
-      src: ['./bgm.mp3'],
+      src: ['./assets/audios/bgm.mp3'],
       loop: true,
     });
     const get = new Howl({
-      src: ['./get.mp3'],
+      src: ['./assets/audios/get.mp3'],
     });
 
     // 加载
     const imgs = [
-      "./ball.webp", "./collection_min.png", "./bg_min.jpeg"
+      "./assets/imgs/ball.webp", "./assets/imgs/collection_min.png", "./assets/imgs/bg_min.jpeg"
     ]; // 图片数组
     let imgLoaded = 0;
     let loadingTimeout;
