@@ -1,0 +1,283 @@
+:root {
+  --brightness-value: 0;
+  --blur-value: 5px;
+  --grayscale-value: 1;
+}
+
+/* 改写animatecss的默认动画时间 */
+.animate__animated {
+  animation-duration: .6s;
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  backface-visibility: hidden;
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: calc(100vw / 3.75);
+}
+
+/* 主图像 */
+.img {
+  width: 256px;
+  height: 256px;
+  background: url("./assets/imgs/collection_min.png") 6144px 5888px no-repeat;
+  background-position: -512px 0;
+  pointer-events: none;
+  transform: translate(0, -4%);
+}
+.img-wrapper {
+  transition: all ease .2s;
+}
+.img-wrapper.mask {
+  filter: brightness(var(--brightness-value));
+}
+.img-wrapper.blur {
+  filter: blur(var(--blur-value));
+}
+.img-wrapper.grayscale {
+  filter: grayscale(var(--grayscale-value));
+}
+.img-wrapper.mask.grayscale {
+  filter: brightness(var(--brightness-value)) grayscale(var(--grayscale-value));
+}
+.img-wrapper.blur.grayscale {
+  filter: blur(var(--blur-value)) grayscale(var(--grayscale-value));
+}
+.img-wrapper.mask.blur {
+  filter: brightness(var(--brightness-value)) blur(var(--blur-value));
+}
+.img-wrapper.mask.blur.grayscale {
+  filter: brightness(var(--brightness-value)) blur(var(--blur-value)) grayscale(var(--grayscale-value));
+}
+.img-wrapper.result {
+  filter: none !important;
+}
+
+.app {
+  background-image: url("./assets/imgs/bg_min.jpeg");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  width: 100vw;
+  /* height: calc(100vh - constant(safe-area-inset-bottom));
+  height: calc(100vh - env(safe-area-inset-bottom)); */
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 页脚 */
+.footer {
+  position: absolute;
+  bottom: calc(.2rem + constant(safe-area-inset-bottom));
+  bottom: calc(.2rem + env(safe-area-inset-bottom));
+  left: 0;
+  width: 100vw;
+  text-align: center;
+  font-size: .12rem;
+  color: #000;
+  /* color: #fbfbfb; */
+  /* background: #131733; */
+  /* text-shadow: 0 0 .04rem #000; */
+  text-shadow: 0 0 .1rem #fbfbfb;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: .2rem;
+}
+.footer > div {
+  transform: scale(.8, .8);
+  transform-origin: center bottom;
+}
+.footer a:visited {
+  color: #000;
+}
+.footer a img {
+  height: .14rem;
+  margin-right: .04rem;
+}
+.safe-area {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: constant(safe-area-inset-bottom);
+  height: env(safe-area-inset-bottom);
+  /* background: #131733; */
+  z-index: 9998;
+  pointer-events: none;
+}
+.capsule {
+  background: #fbfbfb;
+  color: #000;
+  text-shadow: none;
+  text-decoration: none;
+  line-height: .2rem;
+  border-radius: .1rem;
+  padding: 0 .06rem;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  font-size: .12rem;
+}
+
+/* 主按钮 */
+.btn {
+  background: white;
+  width: 1rem;
+  margin: 5vw auto 0;
+  line-height: .3rem;
+  text-align: center;
+  font-size: .15rem;
+  letter-spacing: .01rem;
+  position: relative;
+  padding-left: .2rem;
+  padding-right: .06rem;
+  box-sizing: border-box;
+  font-weight: bold;
+  border-radius: .2rem;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border: .03rem solid #000;
+  box-shadow: 0px .04rem 0px 0px rgba(0, 0, 0, 1);
+  transition: all ease .05s;
+  left: .04rem;
+  transform: translate(0, 0);
+}
+.btn.disabled {
+  filter: brightness(.8) grayscale(1);
+}
+.btn.active {
+  transform: translate(0, .02rem);
+  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+}
+.btn.active img {
+  filter: drop-shadow(0px 0px 0px rgba(0, 0, 0, 1));
+}
+.btn img {
+  height: .44rem;
+  position: absolute;
+  left: 0;
+  top: 48%;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0px .04rem 0px rgba(0, 0, 0, 1));
+  transition: all ease .05s;
+  pointer-events: none;
+}
+
+/* 加载中 */
+.loading {
+  font-size: .14rem;
+  letter-spacing: .01rem;
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%);
+  left: 0;
+  width: 100%;
+  text-align: center;
+  transition: all ease .2s;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* 设置按钮 */
+.setting {
+  position: absolute;
+  top: .2rem;
+  right: .2rem;
+  width: .3rem;
+  height: .3rem;
+  background: url("./assets/imgs/setting.png") no-repeat;
+  background-size: contain;
+}
+.setting-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  padding: .2rem;
+  padding-bottom: calc(.2rem + constant(safe-area-inset-bottom));
+  padding-bottom: calc(.2rem + env(safe-area-inset-bottom));
+  background: #131733;
+  border-radius: .1rem;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  z-index: 100;
+  box-shadow: 0 -.06rem .1rem 0px rgba(0, 0, 0, .3);
+  color: white;
+  font-size: .16rem;
+  display: none;
+}
+.setting-panel-title {
+  font-size: .2rem;
+  font-weight: bold;
+  margin-bottom: .2rem;
+}
+.setting-panel-close {
+  position: absolute;
+  top: .2rem;
+  right: .2rem;
+  width: .2rem;
+  height: .2rem;
+  color: white;
+  font-size: .24rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.setting-item {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: .1rem;
+}
+.setting-item label {
+  margin-right: .1rem;
+}
+.setting-title div {
+  font-weight: bold;
+}
+.setting-title .desc {
+  color: #999;
+  font-size: .14rem;
+  margin-left: .1rem;
+}
+.setting-title {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: .1rem;
+}
+
+/* 进度滑块 */
+.progress-wrapper {
+  flex: 1;
+  margin-left: .15rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.progress-wrapper.disabled {
+  opacity: .3;
+  pointer-events: none;
+}
+.progress-slider {
+  flex: 1;
+  margin: 0 .1rem;
+}
+.progress-value {
+  margin-left: 0;
+}
