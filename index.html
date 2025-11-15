@@ -1,278 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Pokémon Flash</title>
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
   />
+  <link rel="stylesheet" href="https://res.wx.qq.com/open/libs/weui/2.3.0/weui.min.css"/>
+  <link rel="stylesheet" href="./main.css" />
   <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
-  <style>
-  html {
-    font-size: calc(100vw / 3.75);
-  }
-  .img {
-    width: 256px;
-    height: 256px;
-    background: url("./collection_min.png") 6144px 5888px no-repeat;
-    background-position: -512px 0;
-    pointer-events: none;
-    transform: translate(0, -4%);
-  }
-  .app {
-    background-image: url("./bg_min.jpeg");
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    width: 100vw;
-    height: 100vh;
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: Arial, Helvetica, sans-serif;
-  }
-  .footer {
-    position: absolute;
-    bottom: 3.5vh;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    font-size: .12rem;
-    color: #fbfbfb;
-    text-shadow: 0 0 .04rem #000;
-    font-family: Arial, Helvetica, sans-serif;
-    transform: scale(.8, .8);
-    transform-origin: center bottom;
-  }
-  .btn {
-    background: white;
-    width: 1rem;
-    margin: 5vw auto 0;
-    line-height: .3rem;
-    text-align: center;
-    font-size: .15rem;
-    letter-spacing: .01rem;
-    position: relative;
-    padding-left: .2rem;
-    padding-right: .06rem;
-    box-sizing: border-box;
-    font-weight: bold;
-    border-radius: .2rem;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border: .03rem solid #000;
-    box-shadow: 0px .04rem 0px 0px rgba(0, 0, 0, 1);
-    transition: all ease .05s;
-    left: .04rem;
-    transform: translate(0, 0);
-  }
-  .btn.active {
-    transform: translate(0, .02rem);
-    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
-  }
-  .btn.active img {
-    filter: drop-shadow(0px 0px 0px rgba(0, 0, 0, 1));
-  }
-  .btn img {
-    height: .44rem;
-    position: absolute;
-    left: 0;
-    top: 48%;
-    transform: translate(-50%, -50%);
-    filter: drop-shadow(0px .04rem 0px rgba(0, 0, 0, 1));
-    transition: all ease .05s;
-    pointer-events: none;
-  }
-  * {
-    user-select: none;
-    -webkit-user-select: none;
-    backface-visibility: hidden;
-    -webkit-tap-highlight-color: transparent;
-  }
-  audio {
-    display: none;
-  }
-  .animate__animated {
-    animation-duration: .6s;
-  }
-  .loading {
-    font-size: .14rem;
-    letter-spacing: .01rem;
-    position: absolute;
-    top: 50%;
-    transform: translate(0, -50%);
-    left: 0;
-    width: 100%;
-    text-align: center;
-    transition: all ease .2s;
-    pointer-events: none;
-    opacity: 0;
-  }
-  </style>
 </head>
 <body>
-  <audio src="./bgm.mp3?v=1" loop id="music_bgm"></audio>
-  <audio src="./get.mp3?v=1" id="music_get"></audio>
-  <div class="app">
+  <div class="app" id="app">
     <div class="loading">Loading...</div>
     <div class="content" style="display: none;">
       <div class="animate__animated animate__bounceInRight">
-        <div class="img"></div>
+        <div class="img-wrapper" id="img-wrapper">
+          <div class="img" id="main-img"></div>
+        </div>
       </div>
       <div class="animate__animated animate__bounceInRight" style="animation-delay: .2s;">
-        <div class="btn">
-          <img src="./ball.webp">
+        <div class="btn" id="btn-start">
+          <img src="./assets/imgs/ball.webp">
           <div class="btn-text">START</div>
         </div>
       </div>
     </div>
     <div class="footer" style="display: none;">
-      <div class="animate__animated animate__bounceInRight" style="animation-delay: .4s;">
+      <div>
         <div>素材来自互联网 仅供娱乐学习</div>
-        <div>@程序员阿瓜</div>
+        <div class="flex">
+          <div style="margin-right: .06rem;">@程序员阿瓜</div>
+          <div style="height: .2rem;font-size: 0;">
+            <a class="capsule" href="https://github.com/cxyagua/pokemon-flash" target="_blank" rel="noopener noreferrer">
+              <img src="./assets/imgs/github.svg" alt="GitHub">
+              <span>GitHub仓库</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 设置按钮 -->
+    <div id="setting" class="setting"></div>
+    <!-- 设置面板 -->
+    <div id="setting-panel" class="setting-panel animate__animated animate__slideInUp">
+      <div class="setting-panel-title">Settings</div>
+      <div class="setting-panel-close" id="setting-close">×</div>
+      <div class="setting-block">
+        <div class="setting-title">
+          <div>滤镜</div>
+          <div class="desc">(调节亮度/灰度/模糊，增加趣味性)</div>
+        </div>
+        <div class="setting-item">
+          <label>亮度</label>
+          <input id="setting-brightness" class="weui-switch" type="checkbox">
+          <div class="progress-wrapper disabled" id="setting-brightness-value">
+            <div>强度</div>
+            <div class="weui-slider progress-slider">
+              <div class="weui-slider__inner">
+                <div class="weui-slider__track" style="width: 100%;"></div>
+                <div role="slider" style="left: 100%;" aria-label="可调滑块" class="weui-slider__handler weui-wa-hotarea" wah-hotarea="touchstart"></div>
+              </div>
+            </div>
+            <div id="sliderValue" role="alert" class="weui-slider-box__value progress-value">100</div>
+          </div>
+        </div>
+        <div class="setting-item">
+          <label>灰度</label>
+          <input id="setting-gray" class="weui-switch" type="checkbox">
+          <div class="progress-wrapper disabled" id="setting-gray-value">
+            <div>强度</div>
+            <div class="weui-slider progress-slider">
+              <div class="weui-slider__inner">
+                <div class="weui-slider__track" style="width: 100%;"></div>
+                <div role="slider" style="left: 100%;" aria-label="可调滑块" class="weui-slider__handler weui-wa-hotarea" wah-hotarea="touchstart"></div>
+              </div>
+            </div>
+            <div id="sliderValue" role="alert" class="weui-slider-box__value progress-value">100</div>
+          </div>
+        </div>
+        <div class="setting-item">
+          <label>模糊</label>
+          <input id="setting-blur" class="weui-switch" type="checkbox">
+          <div class="progress-wrapper disabled" id="setting-blur-value">
+            <div>强度</div>
+            <div class="weui-slider progress-slider">
+              <div class="weui-slider__inner">
+                <div class="weui-slider__track" style="width: 100%;"></div>
+                <div role="slider" style="left: 100%;" aria-label="可调滑块" class="weui-slider__handler weui-wa-hotarea" wah-hotarea="touchstart"></div>
+              </div>
+            </div>
+            <div id="sliderValue" role="alert" class="weui-slider-box__value progress-value">100</div>
+          </div>
+        </div>  
       </div>
     </div>
   </div>
-  <script>
-    // 全局数据
-    let rafId = null; // 动画请求ID
-    const FPS = 60; // 目标帧率
-    const FRAME_TIME = 1000 / FPS; // ~16.67ms
-    let lastTime = 0; // 上一帧时间
-    let accumulator = 0; // 累加时间
-    let indexList = []; // 随机索引列表
-    const total = 542; // 图片总数
-    
-    // 音乐
-    const bgm = new Howl({
-      src: ['./bgm.mp3'],
-      loop: true,
-    });
-    const get = new Howl({
-      src: ['./get.mp3'],
-    });
-
-    // 加载
-    const imgs = [
-      "./ball.webp", "./collection_min.png", "./bg_min.jpeg"
-    ]; // 图片数组
-    let imgLoaded = 0;
-    let loadingTimeout;
-    const preload = () => {
-      // 预加载所有图片
-      for (let i = 0; i < imgs.length; i += 1) {
-        const img = new Image();
-        img.src = imgs[i];
-        img.onload = () => {
-          if (++imgLoaded === imgs.length) {
-            // 所有图片加载完成后启动游戏
-            boot();
-          }
-        }
-      }
-      loadingTimeout = setTimeout(() => {
-        const loading = document.querySelector(".loading");
-        loading.style.opacity = "1";
-      }, 1000)
-    }
-    window.addEventListener('load', () => {
-      preload();
-    });
-
-    // 启动
-    const boot = () => {
-      clearTimeout(loadingTimeout);
-      // 隐藏Loading
-      const loading = document.querySelector(".loading");
-      loading.style.opacity = "0";
-      // 显示内容
-      const content = document.querySelector(".content");
-      content.style.display = "block";
-      // 显示页脚
-      const footer = document.querySelector(".footer");
-      footer.style.display = "block";
-    }
-    
-    // 随机获取索引
-    const getRandomIndex = () => {
-      for (let i = 0; i < total; i += 1) {
-        indexList.push(i);
-      }
-      indexList.sort(() => Math.random() - 0.5);
-    }
-    
-    // 快闪单帧
-    const img = document.querySelector(".img");
-    const stepFrame = () => {
-      const index = indexList.shift();
-      const row = Math.floor(index / 24);
-      const col = index % 24;
-      img.style.backgroundPosition = `-${col * 256}px -${row * 256}px`;
-      if (indexList.length === 0) {
-        getRandomIndex();
-      }
-    };
-
-    // 快闪循环
-    const loop = (time) => {
-      if (lastTime === 0) {
-        lastTime = time;
-      }
-      const dt = time - lastTime;
-      lastTime = time;
-      accumulator += dt;
-
-      // 以目标60帧的间隔推进动画帧
-      while (accumulator >= FRAME_TIME) {
-        stepFrame();
-        accumulator -= FRAME_TIME;
-      }
-
-      rafId = requestAnimationFrame(loop);
-    };
-
-    // app 点击事件
-    const app = document.querySelector(".app");
-    app.addEventListener("click", (e) => e.stopPropagation());
-    app.addEventListener("touchmove", (e) => e.preventDefault());
-
-    // 按钮点击事件
-    const btn = document.querySelector(".btn");
-    const btnText = document.querySelector(".btn-text");
-    btn.addEventListener("click", () => {
-      if (rafId === null) {
-        // 开始动画
-        lastTime = 0;
-        accumulator = 0;
-        getRandomIndex();
-        rafId = requestAnimationFrame(loop);
-        btnText.innerHTML = 'STOP';
-        bgm.play();
-        get.stop();
-      } else {
-        btnText.innerHTML = 'START';
-        // 停止动画
-        cancelAnimationFrame(rafId);
-        rafId = null;
-        lastTime = 0;
-        accumulator = 0;
-        bgm.stop();
-        get.play();
-      }
-    });
-    // 按钮效果
-    btn.addEventListener(`touchstart`, (e) => {
-      e.stopPropagation();
-      btn.classList.add(`active`);
-    });
-    btn.addEventListener(`touchend`, (e) => {
-      e.stopPropagation();
-      btn.classList.remove(`active`);
-    });
-  </script>
+  <div class="safe-area"></div>
+  <script src="./main.js"></script>
 </body>
 </html>
