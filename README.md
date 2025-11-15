@@ -15,16 +15,34 @@
 - 即开即玩：无需依赖、无需构建，双击即可运行
 - 易于扩展：所有逻辑集中在 `index.html`，方便二次开发
 
+## Dependencies
+
+以下依赖均通过CDN引入，无需安装：
+
+- [animate.css](https://github.com/animate-css/animate.css) 简单动画
+- [weui](https://github.com/Tencent/weui) 微信风格UI组件库
+- [howler](https://github.com/goldfire/howler.js) 简单易用的HTML5音频库
+
 ## Quick Start
 
-使用任意本地静态服务器均可，推荐使用 Node.js 或 Python。
-另外IDE也有很多Live Server之类的插件，都可以快速开启本地静态服务器。
+使用任意本地静态服务器均可，例如[anywhere](https://github.com/JacksonTian/anywhere):
+```bash
+# 全局安装
+npm install -g anywhere
+
+# 进入目录
+cd pokemon-flash
+
+# 开启本地静态服务器
+anywhere
+```
+另外IDE也有很多类似`Live Server`之类的插件，都可以快速开启本地静态服务器。
 
 ## Roadmap
 - [x] v1.0.0：Pokemon Flash 登场！
   - 基础玩法、随机快闪、点击开始/暂停
-- [ ] v1.1.0：增加神秘感！
-  - 进出场动画、模糊/遮罩、悬念效果
+- [x] v1.1.0：增加神秘感！
+  - 增加设置面板，可设置滤镜（模糊、灰度、亮度）、调节强度
 - [ ] v1.2.0：更多的快闪形式！
   - 多样出现方式、速度曲线、布局
 - [ ] v1.3.0：快闪抽卡历史！
@@ -38,7 +56,16 @@
 - [ ] v1.7.0：PC 也能玩！
   - 键盘/鼠标操作优化、响应式桌面布局
 
-## Contributing Guidelines
+## Change Logs
+- v1.0.0 `2025-11-15`：初始版本
+  - 基础玩法、随机快闪、点击开始/暂停
+- v1.1.0 `2025-11-16`：增加神秘感！
+  - 增加设置按钮及设置面板，可设置滤镜（模糊、灰度、亮度）、调节强度
+  - 新增依赖：[weui](https://github.com/Tencent/weui)
+  - 音效增加（点击、背景音乐）
+  - 代码结构及注释优化、删除多余资源
+
+## Contribution
 1. 提交 Issue：描述问题或建议，附带复现实例与截图
 2. Fork 仓库并创建分支：`feat/xxx` 或 `fix/xxx`
 3. 保持代码简洁、避免无关改动
