@@ -64,6 +64,9 @@ anywhere
   - 新增依赖：[weui](https://github.com/Tencent/weui)
   - 音效增加（点击、背景音乐）
   - 代码结构及注释优化、删除多余资源
+- v1.1.1 `2025-11-17`: 样式优化
+  - 修改按钮样式
+  - 主图大小自适应
 
 ## Contribution
 1. 提交 Issue：描述问题或建议，附带复现实例与截图
