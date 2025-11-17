@@ -1,12 +1,19 @@
 :root {
   --brightness-value: 0;
-  --blur-value: 5px;
+  --blur-value: 0.05rem;
   --grayscale-value: 1;
 }
 
 /* 改写animatecss的默认动画时间 */
 .animate__animated {
   animation-duration: .6s;
+}
+
+.content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .flex {
@@ -33,7 +40,6 @@ html {
   background: url("./assets/imgs/collection_min.png") 6144px 5888px no-repeat;
   background-position: -512px 0;
   pointer-events: none;
-  transform: translate(0, -4%);
 }
 .img-wrapper {
   transition: all ease .2s;
@@ -136,46 +142,27 @@ html {
 
 /* 主按钮 */
 .btn {
-  background: white;
-  width: 1rem;
-  margin: 5vw auto 0;
-  line-height: .3rem;
-  text-align: center;
-  font-size: .15rem;
-  letter-spacing: .01rem;
   position: relative;
-  padding-left: .2rem;
-  padding-right: .06rem;
-  box-sizing: border-box;
-  font-weight: bold;
-  border-radius: .2rem;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border: .03rem solid #000;
-  box-shadow: 0px .04rem 0px 0px rgba(0, 0, 0, 1);
   transition: all ease .05s;
-  left: .04rem;
   transform: translate(0, 0);
+  text-align: center;
+  height: .44rem;
+  font-size: 0;
+  width: 2rem;
+  margin: .2rem auto 0;
+  background-image: url("./assets/imgs/btn-start.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.btn.stop {
+  background-image: url("./assets/imgs/btn-stop.png");
 }
 .btn.disabled {
   filter: brightness(.8) grayscale(1);
 }
 .btn.active {
   transform: translate(0, .02rem);
-  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
-}
-.btn.active img {
-  filter: drop-shadow(0px 0px 0px rgba(0, 0, 0, 1));
-}
-.btn img {
-  height: .44rem;
-  position: absolute;
-  left: 0;
-  top: 48%;
-  transform: translate(-50%, -50%);
-  filter: drop-shadow(0px .04rem 0px rgba(0, 0, 0, 1));
-  transition: all ease .05s;
-  pointer-events: none;
 }
 
 /* 加载中 */
@@ -216,7 +203,7 @@ html {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   z-index: 100;
-  box-shadow: 0 -.06rem .1rem 0px rgba(0, 0, 0, .3);
+  box-shadow: 0 -.06rem .1rem 0 rgba(0, 0, 0, .3);
   color: white;
   font-size: .16rem;
   display: none;

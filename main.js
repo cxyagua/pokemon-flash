@@ -8,6 +8,7 @@ let lastTime = 0;
 let accumulator = 0;
 let indexList = [];
 const total = 542;
+let scale = window.innerWidth / 375; // 以375为基准
 const musicBgm = new Howl({
   src: ['./assets/audios/bg.mp3'],
   loop: true,
@@ -19,7 +20,10 @@ const musicBattle = new Howl({
 const musicGet = new Howl({ src: ['./assets/audios/get.mp3'] });
 const musicClick = new Howl({ src: ['./assets/audios/click.mp3'] });
 const imgs = [
-  "./assets/imgs/ball.webp", "./assets/imgs/collection_min.png", "./assets/imgs/bg_min.jpeg"
+  "./assets/imgs/btn-start.png",
+  "./assets/imgs/btn-stop.png",
+  "./assets/imgs/collection_min.png",
+  "./assets/imgs/bg_min.jpeg"
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -75,9 +79,14 @@ window.addEventListener('load', () => {
 const boot = () => {
   clearTimeout(loadingTimeout);
   loading.style.opacity = "0";
-  content.style.display = "block";
+  content.style.display = "flex";
   footer.style.display = "block";
   enableStart = true;
+  imgWrapper.style.zoom = `${scale}`;
+  window.addEventListener('resize', () => {
+    scale = window.innerWidth / 375; // 以375为基准
+    imgWrapper.style.zoom = `${scale}`;
+  })
 }
 
 // 切换主图像（每帧）
@@ -196,19 +205,19 @@ const startLoop = () => {
   lastTime = 0;
   accumulator = 0;
   getRandomIndex();
+  startBtn.classList.toggle("stop", true);
   rafId = requestAnimationFrame(loop);
-  startBtnText.innerHTML = 'STOP';
   musicBattle.play();
   musicGet.stop();
   musicBgm.fade(1, 0, 0.2);
   imgWrapper.classList.toggle("result", false);
 }
 const endLoop = () => {
-  startBtnText.innerHTML = 'START';
   cancelAnimationFrame(rafId);
   rafId = null;
   lastTime = 0;
   accumulator = 0;
+  startBtn.classList.toggle("stop", false);
   startBtn.classList.toggle(`disabled`, true);
   musicBattle.stop();
   musicGet.play();
@@ -274,7 +283,7 @@ const initSettingSliders = () => {
   });
   // 模糊强度
   initSlider("setting-blur-value", (percent) => {
-    imgWrapper.style.setProperty("--blur-value", `${percent / 100 * 5}px`);
+    imgWrapper.style.setProperty("--blur-value", `${percent / 100 * 5 / 100}rem`);
     imgWrapper.classList.toggle("result", false);
   });
 }
