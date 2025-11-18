@@ -34,15 +34,16 @@ html {
 }
 
 /* 主图像 */
-.img {
+/* .img {
   width: 256px;
   height: 256px;
   background: url("./assets/imgs/collection_min.png") 6144px 5888px no-repeat;
   background-position: -512px 0;
   pointer-events: none;
-}
+} */
 .img-wrapper {
   transition: all ease .2s;
+  font-size: 0;
 }
 .img-wrapper.mask {
   filter: brightness(var(--brightness-value));

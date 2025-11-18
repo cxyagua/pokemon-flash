@@ -35,7 +35,15 @@ const content = document.querySelector(".content");
 const footer = document.querySelector(".footer");
 const app = document.querySelector("#app");
 // 图像
-const mainImg = document.querySelector("#main-img");
+const mainCanvas = document.querySelector("#main-canvas");
+const ctx = mainCanvas.getContext("2d");
+const spriteImg = new Image();
+let spriteReady = false;
+spriteImg.onload = () => {
+  spriteReady = true;
+  drawAt(2, 0);
+};
+spriteImg.src = "./assets/imgs/collection_min.png";
 const imgWrapper = document.querySelector("#img-wrapper");
 // 主按钮
 const startBtn = document.querySelector("#btn-start");
@@ -84,6 +92,7 @@ const boot = () => {
   footer.style.display = "block";
   enableStart = true;
   imgWrapper.style.zoom = `${scale}`;
+  if (spriteReady) drawAt(2, 0);
   window.addEventListener('resize', () => {
     scale = window.innerWidth / 375; // 以375为基准
     imgWrapper.style.zoom = `${scale}`;
@@ -92,14 +101,19 @@ const boot = () => {
 
 // 切换主图像（每帧）
 const stepFrame = () => {
+  if (!spriteReady) return;
   const index = indexList.shift();
   const row = Math.floor(index / 24);
   const col = index % 24;
-  mainImg.style.backgroundPosition = `-${col * 256}px -${row * 256}px`;
+  drawAt(col, row);
   if (indexList.length === 0) {
     getRandomIndex();
   }
 };
+const drawAt = (col, row) => {
+  ctx.clearRect(0, 0, 256, 256);
+  ctx.drawImage(spriteImg, col * 256, row * 256, 256, 256, 0, 0, 256, 256);
+}
 // 生成随机序列
 const getRandomIndex = () => {
   for (let i = 0; i < total; i += 1) {
