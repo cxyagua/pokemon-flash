@@ -1,13 +1,14 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // 全局变量
 // ─────────────────────────────────────────────────────────────────────────────
-let rafId = null;
-const FPS = 60;
-const FRAME_TIME = 1000 / FPS;
-let lastTime = 0;
-let accumulator = 0;
-let indexList = [];
-const total = 542;
+let rafId = null; // 动画请求ID
+let FPS = 60; // 帧率
+let FRAME_TIME = 1000 / FPS; // 每帧时间
+let lastTime = 0; // 上一帧时间
+let accumulator = 0; // 累加时间
+let indexList = []; // 索引列表
+let flashMode = 'static'; // 滚动方式
+const total = 542; // 总数量
 let scale = window.innerWidth / 375; // 以375为基准
 const musicBgm = new Howl({
   src: ['./assets/audios/bg.mp3'],
@@ -125,7 +126,7 @@ const loop = (time) => {
 // 通用方法
 // ─────────────────────────────────────────────────────────────────────────────
 // 初始化滑块
-const initSlider = (id, onValueChange) => {
+const initSlider = (id, onValueChange, valueFormatter) => {
   const sliderTrack = document.querySelector(`#${id} .weui-slider__track`);
   const sliderHandler = document.querySelector(`#${id} .weui-slider__handler`);
   const sliderValue = document.querySelector(`#${id} .weui-slider-box__value`);
@@ -141,10 +142,10 @@ const initSlider = (id, onValueChange) => {
         percent;
     dist = dist < 0 ? 0 : dist > totalLen ? totalLen : dist;
     percent =  parseInt(dist / totalLen * 100);
+    onValueChange(percent);
     sliderTrack.style.width = percent + '%';
     sliderHandler.style.left = percent + '%';
-    sliderValue.textContent = percent;
-    onValueChange(percent);
+    sliderValue.textContent = typeof valueFormatter === 'function' ? valueFormatter(percent) : percent;
     musicClick.play();
   })
 
@@ -158,12 +159,23 @@ const initSlider = (id, onValueChange) => {
         percent;
     dist = dist < 0 ? 0 : dist > totalLen ? totalLen : dist;
     percent =  parseInt(dist / totalLen * 100);
+    onValueChange(percent);
     sliderTrack.style.width = percent + '%';
     sliderHandler.style.left = percent + '%';
-    sliderValue.textContent = percent;
-    onValueChange(percent);
+    sliderValue.textContent = typeof valueFormatter === 'function' ? valueFormatter(percent) : percent;
     e.preventDefault();
   })
+}
+
+// 初始化radio group
+const initRadioGroup = (id, onValueChange) => {
+  const radioGroup = document.querySelector(`#${id}`);
+  const radios = radioGroup.querySelectorAll(`input[type="radio"]`);
+  radios.forEach((radio) => {
+    radio.addEventListener('change', (e) => {
+      onValueChange(e.target.value);
+    })
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -286,6 +298,11 @@ const initSettingSliders = () => {
     imgWrapper.style.setProperty("--blur-value", `${percent / 100 * 5 / 100}rem`);
     imgWrapper.classList.toggle("result", false);
   });
+  // 帧率
+  initSlider("setting-frame-value", (percent) => {
+    FPS = 10 + Math.floor(50 * percent / 100);
+    FRAME_TIME = 1000 / FPS;
+  }, () => `${FPS} FPS`);
 }
 // 调节亮度
 settingBrightness.addEventListener("change", (e) => {
@@ -310,4 +327,9 @@ settingBlur.addEventListener("change", (e) => {
   imgWrapper.classList.toggle("blur", blur);
   imgWrapper.classList.toggle("result", false);
   settingBlurValue.classList.toggle("disabled", !blur);
+});
+// 滚动方式
+initRadioGroup("setting-flash-mode", (value) => {
+  flashMode = value;
+  console.log(value);
 });

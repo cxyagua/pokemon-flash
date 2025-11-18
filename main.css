@@ -225,17 +225,58 @@ html {
   justify-content: center;
   align-items: center;
 }
+.setting-block {
+  margin-top: .2rem;
+}
+.setting-radio-group {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex: 1;
+  border-radius: .1rem;
+  border: .01rem solid #ddd;
+  overflow: hidden;
+}
+.setting-radio {
+  height: .4rem;
+  flex: 1;
+  position: relative;
+  border-right: .01rem solid #ddd;
+}
+.setting-radio:last-child {
+  border-right: none;
+}
+.setting-radio input {
+  opacity: 0;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  z-index: 2;
+}
+.setting-radio input[type="radio"]:checked+div {
+  background: var(--weui-BRAND);
+}
+.setting-radio div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .setting-item {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  margin-bottom: .1rem;
+  margin-bottom: .2rem;
 }
 .setting-item label {
   margin-right: .1rem;
 }
 .setting-title div {
   font-weight: bold;
+  font-size: .18rem;
 }
 .setting-title .desc {
   color: #999;
@@ -246,7 +287,7 @@ html {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  margin-bottom: .1rem;
+  margin-bottom: .2rem;
 }
 
 /* 进度滑块 */

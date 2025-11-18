@@ -47,8 +47,8 @@
       <div class="setting-panel-close" id="setting-close">×</div>
       <div class="setting-block">
         <div class="setting-title">
-          <div>滤镜</div>
-          <div class="desc">(调节亮度/灰度/模糊，增加趣味性)</div>
+          <div>滤镜设置</div>
+          <div class="desc">(调节亮度/灰度/模糊)</div>
         </div>
         <div class="setting-item">
           <label>亮度</label>
@@ -92,6 +92,41 @@
             <div id="sliderValue" role="alert" class="weui-slider-box__value progress-value">100</div>
           </div>
         </div>  
+      </div>
+      <div class="setting-block">
+        <div class="setting-title">
+          <div>滚动设置</div>
+          <div class="desc">(调节滚动方式/帧率)</div>
+        </div>
+        <div class="setting-item">
+          <div>滚动方式</div>
+          <div class="setting-radio-group" id="setting-flash-mode" style="margin-left: 0.1rem">
+            <div class="setting-radio">
+              <input type="radio" name="flash-mode" value="static" checked>
+              <div>原位置</div>
+            </div>
+            <div class="setting-radio">
+              <input type="radio" name="flash-mode" value="horizontal">
+              <div>横向</div>
+            </div>
+            <div class="setting-radio">
+              <input type="radio" name="flash-mode" value="vertical">
+              <div>纵向</div>
+            </div>
+          </div>
+        </div>
+        <div class="setting-item">
+          <div class="progress-wrapper" id="setting-frame-value">
+            <div>帧率</div>
+            <div class="weui-slider progress-slider">
+              <div class="weui-slider__inner">
+                <div class="weui-slider__track" style="width: 100%;"></div>
+                <div role="slider" style="left: 100%;" aria-label="可调滑块" class="weui-slider__handler weui-wa-hotarea" wah-hotarea="touchstart"></div>
+              </div>
+            </div>
+            <div id="sliderValue" role="alert" class="weui-slider-box__value progress-value">60 FPS</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
