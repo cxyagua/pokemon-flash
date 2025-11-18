@@ -7,7 +7,7 @@ let FRAME_TIME = 1000 / FPS; // 每帧时间
 let lastTime = 0; // 上一帧时间
 let accumulator = 0; // 累加时间
 let indexList = []; // 索引列表
-let flashMode = 'static'; // 滚动方式
+let flashMode = 'horizontal'; // 滚动方式
 const total = 542; // 总数量
 let scale = window.innerWidth / 375; // 以375为基准
 const musicBgm = new Howl({
@@ -37,11 +37,20 @@ const app = document.querySelector("#app");
 // 图像
 const mainCanvas = document.querySelector("#main-canvas");
 const ctx = mainCanvas.getContext("2d");
+const frameSize = 256;
 const spriteImg = new Image();
 let spriteReady = false;
+let currentIndex = 0;
+let currentCol = 2;
+let currentRow = 0;
+let centerX = (mainCanvas.width - frameSize) / 2;
+let centerY = (mainCanvas.height - frameSize) / 2;
+let hx1 = centerX - frameSize;
+let hx2 = centerY + frameSize;
+let currentOffsetX = 0;
 spriteImg.onload = () => {
   spriteReady = true;
-  drawAt(2, 0);
+  drawAt(currentCol, currentRow, centerX, centerY);
 };
 spriteImg.src = "./assets/imgs/collection_min.png";
 const imgWrapper = document.querySelector("#img-wrapper");
@@ -91,28 +100,78 @@ const boot = () => {
   content.style.display = "flex";
   footer.style.display = "block";
   enableStart = true;
-  imgWrapper.style.zoom = `${scale}`;
-  if (spriteReady) drawAt(2, 0);
+  imgWrapper.style.zoom = `1`;
+  resizeCanvas();
+  if (spriteReady) drawAt(currentCol, currentRow, centerX, centerY);
   window.addEventListener('resize', () => {
-    scale = window.innerWidth / 375; // 以375为基准
-    imgWrapper.style.zoom = `${scale}`;
+    scale = window.innerWidth / 375;
+    imgWrapper.style.zoom = `1`;
+    resizeCanvas();
   })
+}
+
+const drawStatic = () => {
+  ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+  const index = indexList[currentIndex];
+  const row = Math.floor(index / 24);
+  const col = index % 24;
+  drawAt(col, row, centerX, centerY);
+}
+
+const drawHorizontal = (reset) => {
+  ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+  const index = indexList[currentIndex];
+  const row = Math.floor(index / 24);
+  const col = index % 24;
+  if (reset) {
+    currentOffsetX = 0;
+  } else {
+    currentOffsetX -= frameSize * 10 / FPS;
+  }
+  const prevIndex = currentIndex === 0 ? indexList.length - 1 : currentIndex - 1;
+  const prevRow = Math.floor(indexList[prevIndex] / 24);
+  const prevCol = indexList[prevIndex] % 24;
+  const nextIndex = currentIndex === indexList.length - 1 ? 0 : currentIndex + 1;
+  const nextRow = Math.floor(indexList[nextIndex] / 24);
+  const nextCol = indexList[nextIndex] % 24;
+  drawAt(col, row, centerX, centerY);
+  drawAt(prevCol, prevRow, hx1, centerY);
+  drawAt(nextCol, nextRow, hx2, centerY);
 }
 
 // 切换主图像（每帧）
 const stepFrame = () => {
   if (!spriteReady) return;
-  const index = indexList.shift();
-  const row = Math.floor(index / 24);
-  const col = index % 24;
-  drawAt(col, row);
-  if (indexList.length === 0) {
-    getRandomIndex();
+  if (flashMode === 'static') {
+    drawStatic();
+    currentIndex += 1;
+    if (currentIndex >= indexList.length) {
+      currentIndex = 0;
+    }
+  } else if (flashMode === 'horizontal') {
+    drawHorizontal();
+    if (currentOffsetX <= -frameSize) {
+      currentOffsetX = 0;
+      currentIndex += 1;
+      if (currentIndex > indexList.length - 1) {
+        currentIndex = 0;
+      }
+    }
   }
 };
-const drawAt = (col, row) => {
-  ctx.clearRect(0, 0, 256, 256);
-  ctx.drawImage(spriteImg, col * 256, row * 256, 256, 256, 0, 0, 256, 256);
+
+const drawAt = (col, row, dx, dy) => {
+  ctx.drawImage(spriteImg, col * frameSize, row * frameSize, frameSize, frameSize, dx + currentOffsetX, dy, frameSize, frameSize);
+}
+const resizeCanvas = () => {
+  const size = window.innerWidth;
+  mainCanvas.width = size;
+  mainCanvas.height = size;
+  centerX = (mainCanvas.width - frameSize) / 2;
+  centerY = (mainCanvas.height - frameSize) / 2;
+  hx1 = centerX - frameSize;
+  hx2 = centerY + frameSize;
+  if (spriteReady) drawAt(currentCol, currentRow);
 }
 // 生成随机序列
 const getRandomIndex = () => {
@@ -230,6 +289,7 @@ startBtn.addEventListener(`touchend`, (e) => {
 const startLoop = () => {
   lastTime = 0;
   accumulator = 0;
+  currentIndex = 0;
   getRandomIndex();
   startBtn.classList.toggle("stop", true);
   rafId = requestAnimationFrame(loop);
@@ -245,6 +305,9 @@ const endLoop = () => {
   accumulator = 0;
   startBtn.classList.toggle("stop", false);
   startBtn.classList.toggle(`disabled`, true);
+  if (flashMode === 'horizontal') {
+    drawHorizontal(true);
+  }
   musicBattle.stop();
   musicGet.play();
   imgWrapper.classList.toggle("result", true);
