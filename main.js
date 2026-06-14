@@ -168,8 +168,12 @@
     // 开始按钮点击：开始/停止循环
     this.els.startBtn.addEventListener('click', function () {
       if (!self.enableStart) return; // 不允许开始则返回
-      if (self.rafId) self.endLoop(); // 正在运行则停止
-      else self.startLoop(); // 否则开始
+      if (self.rafId) {
+        self.enableStart = false; // 禁用开始按钮
+        self.endLoop(); // 正在运行则停止
+      } else {
+        self.startLoop(); // 否则开始
+      }
     });
 
     // 开始按钮触摸开始：添加激活样式
