@@ -77,19 +77,19 @@ html {
   position: absolute;
 }
 .img-wrapper-horizontal .img-h1 {
-  background-position: -512px 0;
+  background-position: -1024px 0;
 }
 .img-wrapper-horizontal .img-h2 {
   background-position: -768px 0;
 }
 .img-wrapper-horizontal .img-h3 {
-  background-position: -1024px 0;
+  background-position: -512px 0;
 }
 .img-wrapper-horizontal .img-h4 {
-  background-position: -1280px 0;
+  background-position: -768px 0;
 }
 .img-wrapper-horizontal .img-h5 {
-  background-position: -1536px 0;
+  background-position: -1024px 0;
 }
 
 
