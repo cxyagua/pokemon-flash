@@ -472,6 +472,7 @@
     } else if (this.flashMode === 'horizontal') {
       this.horizontalStoping = true; // 加速度DT
       this.els.startBtn.classList.toggle('disabled', true); // 禁用按钮
+      this.musicClick.play(); // 播放点击音效
     }
   };
 
