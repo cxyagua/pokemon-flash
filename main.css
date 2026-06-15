@@ -69,6 +69,31 @@ html {
   filter: none !important;
 }
 
+.img-wrapper-horizontal {
+  width: 256px;
+  height: 256px;
+}
+.img-wrapper-horizontal .img {
+  position: absolute;
+}
+.img-wrapper-horizontal .img-h1 {
+  background-position: -512px 0;
+}
+.img-wrapper-horizontal .img-h2 {
+  background-position: -768px 0;
+}
+.img-wrapper-horizontal .img-h3 {
+  background-position: -1024px 0;
+}
+.img-wrapper-horizontal .img-h4 {
+  background-position: -1280px 0;
+}
+.img-wrapper-horizontal .img-h5 {
+  background-position: -1536px 0;
+}
+
+
+
 .app {
   background-image: url("./assets/imgs/bg_min.jpeg");
   background-size: cover;

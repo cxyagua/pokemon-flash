@@ -65,6 +65,8 @@
     this.musicClick = new Howl({ src: [this.options.audio.click] });
 
     this.els = {}; // 缓存的 DOM 元素
+
+    this.isEnd = true; // 是否结束游戏
   }
 
   // 默认配置
@@ -97,6 +99,7 @@
       footer: '.footer',
       app: '#app',
       mainImg: '#main-img',
+      horizontalImgWrapper: '#img-wrapper-horizontal',
       imgWrapper: '#img-wrapper',
       startBtn: '#btn-start',
       startBtnText: '#btn-start .btn-text',
@@ -130,6 +133,8 @@
     this.els.footer = document.querySelector(s.footer); // 页脚
     this.els.app = document.querySelector(s.app); // 应用容器
     this.els.mainImg = document.querySelector(s.mainImg); // 主精灵图
+    this.els.horizontalImgWrapper = document.querySelector(s.horizontalImgWrapper); // 水平精灵图包装器
+    this.els.horizontalImgs = this.els.horizontalImgWrapper.querySelectorAll('.img'); // 水平精灵图
     this.els.imgWrapper = document.querySelector(s.imgWrapper); // 图片包装器
     this.els.startBtn = document.querySelector(s.startBtn); // 开始按钮
     this.els.startBtnText = document.querySelector(s.startBtnText); // 开始按钮文字
@@ -208,7 +213,9 @@
       self.musicClick.play();
       var brightness = e.target.checked; // 开关状态
       self.els.imgWrapper.classList.toggle('mask', brightness);
+      self.els.horizontalImgWrapper.classList.toggle('mask', brightness);
       self.els.imgWrapper.classList.toggle('result', false);
+      self.els.horizontalImgWrapper.classList.toggle('result', false);
       self.els.settingBrightnessValue.classList.toggle('disabled', !brightness);
     });
 
@@ -217,7 +224,9 @@
       self.musicClick.play();
       var gray = e.target.checked; // 开关状态
       self.els.imgWrapper.classList.toggle('grayscale', gray);
+      self.els.horizontalImgWrapper.classList.toggle('grayscale', gray);
       self.els.imgWrapper.classList.toggle('result', false);
+      self.els.horizontalImgWrapper.classList.toggle('result', false);
       self.els.settingGrayValue.classList.toggle('disabled', !gray);
     });
 
@@ -226,7 +235,9 @@
       self.musicClick.play();
       var blur = e.target.checked; // 开关状态
       self.els.imgWrapper.classList.toggle('blur', blur);
+      self.els.horizontalImgWrapper.classList.toggle('blur', blur);
       self.els.imgWrapper.classList.toggle('result', false);
+      self.els.horizontalImgWrapper.classList.toggle('result', false);
       self.els.settingBlurValue.classList.toggle('disabled', !blur);
     });
 
@@ -234,7 +245,16 @@
     this.initRadioGroup('setting-flash-mode', function (value) {
       self.musicClick.play();
       self.flashMode = value; // 更新滚动方式
-      console.log(value);
+      if (self.flashMode === 'static') {
+        self.els.horizontalImgWrapper.style.zoom = 'none';
+        self.els.imgWrapper.style.display = 'block';
+        self.els.horizontalImgWrapper.style.display = 'none';
+      } else if (self.flashMode === 'horizontal') {
+        self.els.imgWrapper.style.zoom = 'none';
+        self.els.imgWrapper.style.display = 'none';
+        self.els.horizontalImgWrapper.style.display = 'block';
+      }
+      self.flashModeBoot();
     });
 
     // 获取精灵音效播放时：延迟淡入 BGM
@@ -280,31 +300,96 @@
     this.els.footer.style.display = 'block'; // 显示页脚
     this.enableStart = true; // 允许开始
 
-    // 计算初始缩放比例
-    this.scale = window.innerWidth / this.options.baseWidth;
-    this.els.imgWrapper.style.zoom = String(this.scale);
+    this.flashModeBoot();
 
     // 窗口大小变化时更新缩放
     window.addEventListener('resize', function () {
       self.scale = window.innerWidth / self.options.baseWidth;
-      self.els.imgWrapper.style.zoom = String(self.scale);
+      if (self.flashMode === 'static') {
+        self.els.imgWrapper.style.zoom = String(self.scale);
+      } else if (self.flashMode === 'horizontal') {
+        self.els.horizontalImgWrapper.style.zoom = String(self.scale);
+      }
     });
   };
 
-  // 执行一帧动画：更新精灵图位置
-  PokemonFlash.prototype.stepFrame = function () {
+  PokemonFlash.prototype.flashModeBoot = function() {
+    var self = this;
+    this.scale = window.innerWidth / this.options.baseWidth;
+    if (this.flashMode === 'static') {
+      this.els.imgWrapper.style.zoom = String(this.scale);
+    } else if (this.flashMode === 'horizontal') {
+      this.els.horizontalImgWrapper.style.zoom = String(this.scale);
+      // 设置初始位置
+      this.els.horizontalImgs.forEach(function(img, index) {
+        var left = self.options.frameSize * (index - 2);
+        img.style.transform = 'translateX(' + left + 'px)';
+        img.left = left;
+      });
+    }
+  }
+
+  // 为图像设置背景图位置
+  PokemonFlash.prototype.setImgBackground = function (img) {
     var index = this.indexList.shift(); // 取出下一个索引
     var row = Math.floor(index / this.options.cols); // 计算行号
     var col = index % this.options.cols; // 计算列号
-
     // 设置背景图位置
-    this.els.mainImg.style.backgroundPosition =
+    img.style.backgroundPosition =
       '-' + col * this.options.frameSize + 'px -' + row * this.options.frameSize + 'px';
 
     // 如果序列用完，重新生成随机序列
     if (this.indexList.length === 0) {
       this.getRandomIndex();
     }
+  };
+
+  // 执行一帧动画：更新精灵图位置
+  PokemonFlash.prototype.stepFrame = function () {
+    this.setImgBackground(this.els.mainImg);
+  };
+
+  // 执行水平方向动画帧：更新精灵图位置
+  PokemonFlash.prototype.stepHorizontalFrame = function (dt) {
+    var self = this;
+    // 加速系数
+    var k = 0;
+    if (!this.horizontalStoping) {
+      this.horizontalAccDt += dt;
+      this.horizontalAccDt = Math.min(this.horizontalAccDt, this.FRAME_TIME * this.FPS * 3);
+      k = this.horizontalAccDt / (this.FRAME_TIME * this.FPS * 3);
+    } else { // 正在停止
+      this.horizontalAccDt -= dt;
+      this.horizontalAccDt = Math.max(this.horizontalAccDt, 0);
+      k = this.horizontalAccDt / (this.FRAME_TIME * this.FPS * 6);
+      if (k === 0) { // 完全停止，滚到正确位置
+        if (this.horizontalEndScrollX === null) this.setHorizontalEndScrollX();
+        var move = this.horizontalEndScrollX * dt / (this.FRAME_TIME * this.FPS) / (Math.abs(this.horizontalEndScrollX) / this.options.frameSize);
+        this.horizontalEndScrollXTotal += move;
+        this.els.horizontalImgs.forEach(function(img) {
+          var left = img.left;
+          left += move;
+          img.style.transform = 'translateX(' + left + 'px)';
+          img.left = left;
+        });
+        if (Math.abs(this.horizontalEndScrollXTotal) >= Math.abs(this.horizontalEndScrollX)) { // 到了正确位置
+          if (!this.isEnd) this.doEnd();
+        }
+        return ;
+      }
+    }
+    this.els.horizontalImgs.forEach(function(img, index) {
+      var left = img.left;
+      if (left > self.options.frameSize * 2) { // 超出边界，回到最左侧，重新随机一只
+        var nextIndex = index === self.els.horizontalImgs.length - 1 ? 0 : index + 1;
+        left = self.els.horizontalImgs[nextIndex].left - self.options.frameSize;
+        self.setImgBackground(img);
+      } else { // 未到边界，继续移动
+        left += self.options.frameSize * dt * k / (self.FRAME_TIME * 3);
+      }
+      img.style.transform = 'translateX(' + left + 'px)';
+      img.left = left;
+    });
   };
 
   // 生成随机索引序列
@@ -329,11 +414,18 @@
     this.accumulator += dt; // 累加到时间累加器
 
     // 当累加时间超过一帧时间时，执行动画帧
-    while (this.accumulator >= this.FRAME_TIME) {
-      this.stepFrame();
-      this.accumulator -= this.FRAME_TIME;
+    if (this.flashMode === 'static') {
+      while (this.accumulator >= this.FRAME_TIME) {
+        this.stepFrame();
+        this.accumulator -= this.FRAME_TIME;
+      }
+    } else if (this.flashMode === 'horizontal') {
+      this.stepHorizontalFrame(dt);
     }
 
+    if (this.isEnd) {
+      return;
+    }
     var self = this;
     this.rafId = requestAnimationFrame(function (t) {
       self.loop(t); // 继续下一帧
@@ -361,12 +453,31 @@
     this.musicBattle.play(); // 播放战斗音乐
     this.musicGet.stop(); // 停止获取音效
     this.musicBgm.fade(1, 0, this.options.bgmFadeOutDuration); // 淡出 BGM
-    this.els.imgWrapper.classList.toggle('result', false); // 移除结果样式
+    this.isEnd = false;
+    if (this.flashMode === 'static') {
+      this.els.imgWrapper.classList.toggle('result', false); // 移除结果样式
+    } else if (this.flashMode === 'horizontal') {
+      this.els.horizontalImgWrapper.classList.toggle('result', false); // 移除结果样式
+      this.horizontalAccDt = 0; // 加速度DT
+      this.horizontalStoping = false; // 是否正在减速
+      this.horizontalEndScrollX = null; // 结束后要额外滚动的距离
+      this.horizontalEndScrollXTotal = 0; // 已滚动的距离
+    }
   };
 
   // 结束动画循环
   PokemonFlash.prototype.endLoop = function () {
+    if (this.flashMode === 'static') {
+      this.doEnd();
+    } else if (this.flashMode === 'horizontal') {
+      this.horizontalStoping = true; // 加速度DT
+      this.els.startBtn.classList.toggle('disabled', true); // 禁用按钮
+    }
+  };
+
+  PokemonFlash.prototype.doEnd = function() {
     var self = this;
+    this.isEnd = true;
     cancelAnimationFrame(this.rafId); // 取消动画帧
     this.rafId = null; // 清空 ID
     this.lastTime = 0; // 重置时间
@@ -376,16 +487,29 @@
     this.musicBattle.stop(); // 停止战斗音乐
     this.musicGet.play(); // 播放获取音效
     this.els.imgWrapper.classList.toggle('result', true); // 添加结果样式
+    this.els.horizontalImgWrapper.classList.toggle('result', true); // 添加结果样式
     // 获取音效播放完成后恢复按钮状态
     this.musicGet.once('end', function () {
       self.enableStart = true; // 允许再次开始
       self.els.startBtn.classList.toggle('disabled', false); // 启用按钮
     });
+  }
+
+  PokemonFlash.prototype.setHorizontalEndScrollX = function () {
+    let min = Number.POSITIVE_INFINITY;
+    let actualMin = 0;
+    this.els.horizontalImgs.forEach(function (img) {
+      min = Math.min(min, Math.abs(img.left));
+      if (min === Math.abs(img.left)) actualMin = img.left;
+    });
+    this.horizontalEndScrollX = actualMin * -1;
   };
+
+
 
   // 打开设置面板
   PokemonFlash.prototype.openSetting = function (e) {
-    if (this.settingShow) return; // 已显示则返回
+    if (this.settingShow || !this.enableStart || !this.isEnd) return; // 已显示则返回
     this.settingShow = true; // 标记为显示
     this.musicClick.play(); // 播放点击音效
     this.els.settingPanel.style.display = 'block'; // 显示面板
@@ -425,6 +549,14 @@
     e.stopPropagation(); // 阻止事件冒泡
   };
 
+  PokemonFlash.prototype.getImgWrapper = function() {
+    if (this.flashMode === 'static') {
+      return this.els.imgWrapper;
+    } else if (this.flashMode === 'horizontal') {
+      return this.els.horizontalImgWrapper;
+    }
+  }
+
   // 初始化设置面板中的滑块
   PokemonFlash.prototype.initSettingSliders = function () {
     var self = this;
@@ -432,13 +564,17 @@
     // 亮度滑块
     this.initSlider('setting-brightness-value', function (percent) {
       self.els.imgWrapper.style.setProperty('--brightness-value', String((100 - percent) / 100));
+      self.els.horizontalImgWrapper.style.setProperty('--brightness-value', String((100 - percent) / 100));
       self.els.imgWrapper.classList.toggle('result', false); // 移除结果样式
+      self.els.horizontalImgWrapper.classList.toggle('result', false); // 移除结果样式
     });
 
     // 灰度滑块
     this.initSlider('setting-gray-value', function (percent) {
       self.els.imgWrapper.style.setProperty('--grayscale-value', String(percent / 100));
+      self.els.horizontalImgWrapper.style.setProperty('--grayscale-value', String(percent / 100));
       self.els.imgWrapper.classList.toggle('result', false); // 移除结果样式
+      self.els.horizontalImgWrapper.classList.toggle('result', false); // 移除结果样式
     });
 
     // 模糊滑块
@@ -447,7 +583,12 @@
         '--blur-value',
         String((percent / 100) * 5 / 100) + 'rem'
       );
+      self.els.horizontalImgWrapper.style.setProperty(
+        '--blur-value',
+        String((percent / 100) * 5 / 100) + 'rem'
+      );
       self.els.imgWrapper.classList.toggle('result', false); // 移除结果样式
+      self.els.horizontalImgWrapper.classList.toggle('result', false); // 移除结果样式
     });
 
     // 帧率滑块
