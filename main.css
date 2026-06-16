@@ -40,9 +40,13 @@ html {
   background: url("./assets/imgs/collection_min.png") 6144px 5888px no-repeat;
   background-position: -512px 0;
   pointer-events: none;
+  margin-top: -14px;
 }
 .img-wrapper {
   transition: all ease .2s;
+  width: 256px;
+  height: 256px;
+  box-sizing: content-box;
 }
 .img-wrapper.mask {
   filter: brightness(var(--brightness-value));
@@ -68,6 +72,96 @@ html {
 .img-wrapper.result {
   filter: none !important;
 }
+
+.img-wrapper.rect-mask {
+  overflow: hidden;
+  border: 8px solid rgba(241, 241, 241, 0.9);
+  border-radius: 10px;
+  background-image: url("./assets/imgs/rect.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) inset;
+}
+
+#rect-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+}
+
+#rect-mask img {
+  position: absolute;
+  width: 14%;
+}
+#rect-mask img:nth-child(1) {
+  top: 0;
+  left: 0;
+  transform: translate(-30%, -30%);
+}
+#rect-mask img:nth-child(2) {
+  top: 0;
+  right: 0;
+  transform: translate(30%, -30%);
+}
+#rect-mask img:nth-child(3) {
+  bottom: 0;
+  left: 0;
+  transform: translate(-30%, 30%);
+}
+#rect-mask img:nth-child(4) {
+  bottom: 0;
+  right: 0;
+  transform: translate(30%, 30%);
+}
+
+.img-wrapper-horizontal {}
+.img-wrapper-horizontal .img {
+  position: absolute;
+  margin-top: -14px;
+}
+.img-wrapper-horizontal .img-h1 {
+  background-position: -1024px 0;
+}
+.img-wrapper-horizontal .img-h2 {
+  background-position: -768px 0;
+}
+.img-wrapper-horizontal .img-h3 {
+  background-position: -512px 0;
+}
+.img-wrapper-horizontal .img-h4 {
+  background-position: -768px 0;
+}
+.img-wrapper-horizontal .img-h5 {
+  background-position: -1024px 0;
+}
+
+.img-wrapper-vertical {}
+.img-wrapper-vertical .img {
+  position: absolute;
+  margin-top: -14px;
+}
+.img-wrapper-vertical .img-v1 {
+  background-position: 0 0;
+}
+.img-wrapper-vertical .img-v2 {
+  background-position: -256px 0;
+}
+.img-wrapper-vertical .img-v3 {
+  background-position: -512px 0;
+}
+.img-wrapper-vertical .img-v4 {
+  background-position: -768px 0;
+}
+.img-wrapper-vertical .img-v5 {
+  background-position: -1024px 0;
+}
+
+
 
 .app {
   background-image: url("./assets/imgs/bg_min.jpeg");
@@ -225,17 +319,58 @@ html {
   justify-content: center;
   align-items: center;
 }
+.setting-block {
+  margin-top: .2rem;
+}
+.setting-radio-group {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex: 1;
+  border-radius: .1rem;
+  border: .01rem solid #ddd;
+  overflow: hidden;
+}
+.setting-radio {
+  height: .4rem;
+  flex: 1;
+  position: relative;
+  border-right: .01rem solid #ddd;
+}
+.setting-radio:last-child {
+  border-right: none;
+}
+.setting-radio input {
+  opacity: 0;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  z-index: 2;
+}
+.setting-radio input[type="radio"]:checked+div {
+  background: var(--weui-BRAND);
+}
+.setting-radio div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .setting-item {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  margin-bottom: .1rem;
+  margin-bottom: .2rem;
 }
 .setting-item label {
   margin-right: .1rem;
 }
 .setting-title div {
   font-weight: bold;
+  font-size: .18rem;
 }
 .setting-title .desc {
   color: #999;
@@ -246,7 +381,7 @@ html {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  margin-bottom: .1rem;
+  margin-bottom: .2rem;
 }
 
 /* 进度滑块 */
@@ -267,4 +402,5 @@ html {
 }
 .progress-value {
   margin-left: 0;
+  color: white;
 }
