@@ -92,6 +92,29 @@ html {
   background-position: -1024px 0;
 }
 
+.img-wrapper-vertical {
+  width: 256px;
+  height: 256px;
+}
+.img-wrapper-vertical .img {
+  position: absolute;
+}
+.img-wrapper-vertical .img-v1 {
+  background-position: 0 -1024px;
+}
+.img-wrapper-vertical .img-v2 {
+  background-position: 0 -768px;
+}
+.img-wrapper-vertical .img-v3 {
+  background-position: 0 -512px;
+}
+.img-wrapper-vertical .img-v4 {
+  background-position: 0 -768px;
+}
+.img-wrapper-vertical .img-v5 {
+  background-position: 0 -1024px;
+}
+
 
 
 .app {
