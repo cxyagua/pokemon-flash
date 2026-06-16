@@ -113,6 +113,8 @@
       settingBlurValue: '#setting-blur-value',
       settingGray: '#setting-gray',
       settingGrayValue: '#setting-gray-value',
+      settingRectMask: '#setting-rect-mark',
+      rectMask: '#rect-mask',
     },
   };
 
@@ -150,6 +152,8 @@
     this.els.settingBlurValue = document.querySelector(s.settingBlurValue); // 模糊滑块
     this.els.settingGray = document.querySelector(s.settingGray); // 灰度开关
     this.els.settingGrayValue = document.querySelector(s.settingGrayValue); // 灰度滑块
+    this.els.settingRectMask = document.querySelector(s.settingRectMask); // 外框遮罩开关
+    this.els.rectMask = document.querySelector(s.rectMask); // 外框遮罩
   };
 
   // 绑定事件监听器
@@ -274,6 +278,19 @@
         self.els.verticalImgWrapper.style.display = 'block';
       }
       self.flashModeBoot();
+    });
+
+    // 亮度开关变化：切换亮度滤镜
+    this.els.settingRectMask.addEventListener('change', function (e) {
+      self.musicClick.play();
+      var rectMask = e.target.checked; // 开关状态
+      self.els.imgWrapper.classList.toggle('rect-mask', rectMask);
+      self.els.horizontalImgWrapper.classList.toggle('rect-mask', rectMask);
+      self.els.verticalImgWrapper.classList.toggle('rect-mask', rectMask);
+      self.els.imgWrapper.classList.toggle('result', false);
+      self.els.horizontalImgWrapper.classList.toggle('result', false);
+      self.els.verticalImgWrapper.classList.toggle('result', false);
+      self.els.rectMask.style.display = rectMask ? 'block' : 'none';
     });
 
     // 获取精灵音效播放时：延迟淡入 BGM

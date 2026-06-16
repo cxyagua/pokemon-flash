@@ -35,6 +35,12 @@
           <div class="img img-v4"></div>
           <div class="img img-v5"></div>
         </div>
+        <div id="rect-mask" style="display: none;">
+          <img src="./assets/imgs/ball.webp">
+          <img src="./assets/imgs/ball.webp">
+          <img src="./assets/imgs/ball.webp">
+          <img src="./assets/imgs/ball.webp">
+        </div>
       </div>
       <!-- 开始按钮 -->
       <div class="animate__animated animate__bounceInRight" style="animation-delay: .2s;">
@@ -142,6 +148,16 @@
             </div>
             <div id="sliderValue" role="alert" class="weui-slider-box__value progress-value">60 FPS</div>
           </div>
+        </div>
+      </div>
+      <div class="setting-block">
+        <div class="setting-title">
+          <div>其他设置</div>
+          <div class="desc">(开关遮罩)</div>
+        </div>
+        <div class="setting-item">
+          <label>遮罩</label>
+          <input id="setting-rect-mark" class="weui-switch" type="checkbox">
         </div>
       </div>
     </div>
