@@ -40,9 +40,13 @@ html {
   background: url("./assets/imgs/collection_min.png") 6144px 5888px no-repeat;
   background-position: -512px 0;
   pointer-events: none;
+  margin-top: -14px;
 }
 .img-wrapper {
   transition: all ease .2s;
+  width: 256px;
+  height: 256px;
+  box-sizing: content-box;
 }
 .img-wrapper.mask {
   filter: brightness(var(--brightness-value));
@@ -69,12 +73,56 @@ html {
   filter: none !important;
 }
 
-.img-wrapper-horizontal {
-  width: 256px;
-  height: 256px;
+.img-wrapper.rect-mask {
+  overflow: hidden;
+  border: 8px solid rgba(241, 241, 241, 0.9);
+  border-radius: 10px;
+  background-image: url("./assets/imgs/rect.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) inset;
 }
+
+#rect-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+}
+
+#rect-mask img {
+  position: absolute;
+  width: 14%;
+}
+#rect-mask img:nth-child(1) {
+  top: 0;
+  left: 0;
+  transform: translate(-30%, -30%);
+}
+#rect-mask img:nth-child(2) {
+  top: 0;
+  right: 0;
+  transform: translate(30%, -30%);
+}
+#rect-mask img:nth-child(3) {
+  bottom: 0;
+  left: 0;
+  transform: translate(-30%, 30%);
+}
+#rect-mask img:nth-child(4) {
+  bottom: 0;
+  right: 0;
+  transform: translate(30%, 30%);
+}
+
+.img-wrapper-horizontal {}
 .img-wrapper-horizontal .img {
   position: absolute;
+  margin-top: -14px;
 }
 .img-wrapper-horizontal .img-h1 {
   background-position: -1024px 0;
@@ -89,6 +137,27 @@ html {
   background-position: -768px 0;
 }
 .img-wrapper-horizontal .img-h5 {
+  background-position: -1024px 0;
+}
+
+.img-wrapper-vertical {}
+.img-wrapper-vertical .img {
+  position: absolute;
+  margin-top: -14px;
+}
+.img-wrapper-vertical .img-v1 {
+  background-position: 0 0;
+}
+.img-wrapper-vertical .img-v2 {
+  background-position: -256px 0;
+}
+.img-wrapper-vertical .img-v3 {
+  background-position: -512px 0;
+}
+.img-wrapper-vertical .img-v4 {
+  background-position: -768px 0;
+}
+.img-wrapper-vertical .img-v5 {
   background-position: -1024px 0;
 }
 

@@ -100,6 +100,7 @@
       app: '#app',
       mainImg: '#main-img',
       horizontalImgWrapper: '#img-wrapper-horizontal',
+      verticalImgWrapper: '#img-wrapper-vertical',
       imgWrapper: '#img-wrapper',
       startBtn: '#btn-start',
       startBtnText: '#btn-start .btn-text',
@@ -112,6 +113,8 @@
       settingBlurValue: '#setting-blur-value',
       settingGray: '#setting-gray',
       settingGrayValue: '#setting-gray-value',
+      settingRectMask: '#setting-rect-mark',
+      rectMask: '#rect-mask',
     },
   };
 
@@ -135,6 +138,8 @@
     this.els.mainImg = document.querySelector(s.mainImg); // 主精灵图
     this.els.horizontalImgWrapper = document.querySelector(s.horizontalImgWrapper); // 水平精灵图包装器
     this.els.horizontalImgs = this.els.horizontalImgWrapper.querySelectorAll('.img'); // 水平精灵图
+    this.els.verticalImgWrapper = document.querySelector(s.verticalImgWrapper); // 垂直精灵图包装器
+    this.els.verticalImgs = this.els.verticalImgWrapper.querySelectorAll('.img'); // 垂直精灵图
     this.els.imgWrapper = document.querySelector(s.imgWrapper); // 图片包装器
     this.els.startBtn = document.querySelector(s.startBtn); // 开始按钮
     this.els.startBtnText = document.querySelector(s.startBtnText); // 开始按钮文字
@@ -147,6 +152,8 @@
     this.els.settingBlurValue = document.querySelector(s.settingBlurValue); // 模糊滑块
     this.els.settingGray = document.querySelector(s.settingGray); // 灰度开关
     this.els.settingGrayValue = document.querySelector(s.settingGrayValue); // 灰度滑块
+    this.els.settingRectMask = document.querySelector(s.settingRectMask); // 外框遮罩开关
+    this.els.rectMask = document.querySelector(s.rectMask); // 外框遮罩
   };
 
   // 绑定事件监听器
@@ -214,8 +221,10 @@
       var brightness = e.target.checked; // 开关状态
       self.els.imgWrapper.classList.toggle('mask', brightness);
       self.els.horizontalImgWrapper.classList.toggle('mask', brightness);
+      self.els.verticalImgWrapper.classList.toggle('mask', brightness);
       self.els.imgWrapper.classList.toggle('result', false);
       self.els.horizontalImgWrapper.classList.toggle('result', false);
+      self.els.verticalImgWrapper.classList.toggle('result', false);
       self.els.settingBrightnessValue.classList.toggle('disabled', !brightness);
     });
 
@@ -225,8 +234,10 @@
       var gray = e.target.checked; // 开关状态
       self.els.imgWrapper.classList.toggle('grayscale', gray);
       self.els.horizontalImgWrapper.classList.toggle('grayscale', gray);
+      self.els.verticalImgWrapper.classList.toggle('grayscale', gray);
       self.els.imgWrapper.classList.toggle('result', false);
       self.els.horizontalImgWrapper.classList.toggle('result', false);
+      self.els.verticalImgWrapper.classList.toggle('result', false);
       self.els.settingGrayValue.classList.toggle('disabled', !gray);
     });
 
@@ -236,8 +247,10 @@
       var blur = e.target.checked; // 开关状态
       self.els.imgWrapper.classList.toggle('blur', blur);
       self.els.horizontalImgWrapper.classList.toggle('blur', blur);
+      self.els.verticalImgWrapper.classList.toggle('blur', blur);
       self.els.imgWrapper.classList.toggle('result', false);
       self.els.horizontalImgWrapper.classList.toggle('result', false);
+      self.els.verticalImgWrapper.classList.toggle('result', false);
       self.els.settingBlurValue.classList.toggle('disabled', !blur);
     });
 
@@ -247,14 +260,37 @@
       self.flashMode = value; // 更新滚动方式
       if (self.flashMode === 'static') {
         self.els.horizontalImgWrapper.style.zoom = 'none';
+        self.els.verticalImgWrapper.style.zoom = 'none';
         self.els.imgWrapper.style.display = 'block';
         self.els.horizontalImgWrapper.style.display = 'none';
+        self.els.verticalImgWrapper.style.display = 'none';
       } else if (self.flashMode === 'horizontal') {
         self.els.imgWrapper.style.zoom = 'none';
+        self.els.verticalImgWrapper.style.zoom = 'none';
         self.els.imgWrapper.style.display = 'none';
         self.els.horizontalImgWrapper.style.display = 'block';
+        self.els.verticalImgWrapper.style.display = 'none';
+      } else if (self.flashMode === 'vertical') {
+        self.els.imgWrapper.style.zoom = 'none';
+        self.els.horizontalImgWrapper.style.zoom = 'none';
+        self.els.imgWrapper.style.display = 'none';
+        self.els.horizontalImgWrapper.style.display = 'none';
+        self.els.verticalImgWrapper.style.display = 'block';
       }
       self.flashModeBoot();
+    });
+
+    // 亮度开关变化：切换亮度滤镜
+    this.els.settingRectMask.addEventListener('change', function (e) {
+      self.musicClick.play();
+      var rectMask = e.target.checked; // 开关状态
+      self.els.imgWrapper.classList.toggle('rect-mask', rectMask);
+      self.els.horizontalImgWrapper.classList.toggle('rect-mask', rectMask);
+      self.els.verticalImgWrapper.classList.toggle('rect-mask', rectMask);
+      self.els.imgWrapper.classList.toggle('result', false);
+      self.els.horizontalImgWrapper.classList.toggle('result', false);
+      self.els.verticalImgWrapper.classList.toggle('result', false);
+      self.els.rectMask.style.display = rectMask ? 'block' : 'none';
     });
 
     // 获取精灵音效播放时：延迟淡入 BGM
@@ -309,6 +345,8 @@
         self.els.imgWrapper.style.zoom = String(self.scale);
       } else if (self.flashMode === 'horizontal') {
         self.els.horizontalImgWrapper.style.zoom = String(self.scale);
+      } else if (self.flashMode === 'vertical') {
+        self.els.verticalImgWrapper.style.zoom = String(self.scale);
       }
     });
   };
@@ -325,6 +363,14 @@
         var left = self.options.frameSize * (index - 2);
         img.style.transform = 'translateX(' + left + 'px)';
         img.left = left;
+      });
+    } else if (this.flashMode === 'vertical') {
+      this.els.verticalImgWrapper.style.zoom = String(this.scale);
+      // 设置初始位置
+      this.els.verticalImgs.forEach(function(img, index) {
+        var top = self.options.frameSize * (index - 2);
+        img.style.transform = 'translateY(' + top + 'px)';
+        img.top = top;
       });
     }
   }
@@ -392,6 +438,49 @@
     });
   };
 
+  // 执行垂直方向动画帧：更新精灵图位置
+  PokemonFlash.prototype.stepVerticalFrame = function (dt) {
+    var self = this;
+    // 加速系数
+    var k = 0;
+    if (!this.verticalStoping) {
+      this.verticalAccDt += dt;
+      this.verticalAccDt = Math.min(this.verticalAccDt, this.FRAME_TIME * this.FPS * 3);
+      k = this.verticalAccDt / (this.FRAME_TIME * this.FPS * 3);
+    } else { // 正在停止
+      this.verticalAccDt -= dt;
+      this.verticalAccDt = Math.max(this.verticalAccDt, 0);
+      k = this.verticalAccDt / (this.FRAME_TIME * this.FPS * 6);
+      if (k === 0) { // 完全停止，滚到正确位置
+        if (this.verticalEndScrollY === null) this.setVerticalEndScrollY();
+        var move = this.verticalEndScrollY * dt / (this.FRAME_TIME * this.FPS) / (Math.abs(this.verticalEndScrollY) / this.options.frameSize);
+        this.verticalEndScrollYTotal += move;
+        this.els.verticalImgs.forEach(function(img) {
+          var top = img.top;
+          top += move;
+          img.style.transform = 'translateY(' + top + 'px)';
+          img.top = top;
+        });
+        if (Math.abs(this.verticalEndScrollYTotal) >= Math.abs(this.verticalEndScrollY)) { // 到了正确位置
+          if (!this.isEnd) this.doEnd();
+        }
+        return ;
+      }
+    }
+    this.els.verticalImgs.forEach(function(img, index) {
+      var top = img.top;
+      if (top > self.options.frameSize * 2) { // 超出边界，回到最上方，重新随机一只
+        var nextIndex = index === self.els.verticalImgs.length - 1 ? 0 : index + 1;
+        top = self.els.verticalImgs[nextIndex].top - self.options.frameSize;
+        self.setImgBackground(img);
+      } else { // 未到边界，继续移动
+        top += self.options.frameSize * dt * k / (self.FRAME_TIME * 3);
+      }
+      img.style.transform = 'translateY(' + top + 'px)';
+      img.top = top;
+    });
+  };
+
   // 生成随机索引序列
   PokemonFlash.prototype.getRandomIndex = function () {
     this.indexList.length = 0; // 清空现有序列
@@ -421,6 +510,8 @@
       }
     } else if (this.flashMode === 'horizontal') {
       this.stepHorizontalFrame(dt);
+    } else if (this.flashMode === 'vertical') {
+      this.stepVerticalFrame(dt);
     }
 
     if (this.isEnd) {
@@ -462,6 +553,12 @@
       this.horizontalStoping = false; // 是否正在减速
       this.horizontalEndScrollX = null; // 结束后要额外滚动的距离
       this.horizontalEndScrollXTotal = 0; // 已滚动的距离
+    } else if (this.flashMode === 'vertical') {
+      this.els.verticalImgWrapper.classList.toggle('result', false); // 移除结果样式
+      this.verticalAccDt = 0; // 加速度DT
+      this.verticalStoping = false; // 是否正在减速
+      this.verticalEndScrollY = null; // 结束后要额外滚动的距离
+      this.verticalEndScrollYTotal = 0; // 已滚动的距离
     }
   };
 
@@ -471,6 +568,10 @@
       this.doEnd();
     } else if (this.flashMode === 'horizontal') {
       this.horizontalStoping = true; // 加速度DT
+      this.els.startBtn.classList.toggle('disabled', true); // 禁用按钮
+      this.musicClick.play(); // 播放点击音效
+    } else if (this.flashMode === 'vertical') {
+      this.verticalStoping = true; // 加速度DT
       this.els.startBtn.classList.toggle('disabled', true); // 禁用按钮
       this.musicClick.play(); // 播放点击音效
     }
@@ -489,6 +590,7 @@
     this.musicGet.play(); // 播放获取音效
     this.els.imgWrapper.classList.toggle('result', true); // 添加结果样式
     this.els.horizontalImgWrapper.classList.toggle('result', true); // 添加结果样式
+    this.els.verticalImgWrapper.classList.toggle('result', true); // 添加结果样式
     // 获取音效播放完成后恢复按钮状态
     this.musicGet.once('end', function () {
       self.enableStart = true; // 允许再次开始
@@ -504,6 +606,16 @@
       if (min === Math.abs(img.left)) actualMin = img.left;
     });
     this.horizontalEndScrollX = actualMin * -1;
+  };
+
+  PokemonFlash.prototype.setVerticalEndScrollY = function () {
+    let min = Number.POSITIVE_INFINITY;
+    let actualMin = 0;
+    this.els.verticalImgs.forEach(function (img) {
+      min = Math.min(min, Math.abs(img.top));
+      if (min === Math.abs(img.top)) actualMin = img.top;
+    });
+    this.verticalEndScrollY = actualMin * -1;
   };
 
 
@@ -555,6 +667,8 @@
       return this.els.imgWrapper;
     } else if (this.flashMode === 'horizontal') {
       return this.els.horizontalImgWrapper;
+    } else if (this.flashMode === 'vertical') {
+      return this.els.verticalImgWrapper;
     }
   }
 
@@ -566,16 +680,20 @@
     this.initSlider('setting-brightness-value', function (percent) {
       self.els.imgWrapper.style.setProperty('--brightness-value', String((100 - percent) / 100));
       self.els.horizontalImgWrapper.style.setProperty('--brightness-value', String((100 - percent) / 100));
+      self.els.verticalImgWrapper.style.setProperty('--brightness-value', String((100 - percent) / 100));
       self.els.imgWrapper.classList.toggle('result', false); // 移除结果样式
       self.els.horizontalImgWrapper.classList.toggle('result', false); // 移除结果样式
+      self.els.verticalImgWrapper.classList.toggle('result', false); // 移除结果样式
     });
 
     // 灰度滑块
     this.initSlider('setting-gray-value', function (percent) {
       self.els.imgWrapper.style.setProperty('--grayscale-value', String(percent / 100));
       self.els.horizontalImgWrapper.style.setProperty('--grayscale-value', String(percent / 100));
+      self.els.verticalImgWrapper.style.setProperty('--grayscale-value', String(percent / 100));
       self.els.imgWrapper.classList.toggle('result', false); // 移除结果样式
       self.els.horizontalImgWrapper.classList.toggle('result', false); // 移除结果样式
+      self.els.verticalImgWrapper.classList.toggle('result', false); // 移除结果样式
     });
 
     // 模糊滑块
@@ -588,8 +706,13 @@
         '--blur-value',
         String((percent / 100) * 5 / 100) + 'rem'
       );
+      self.els.verticalImgWrapper.style.setProperty(
+        '--blur-value',
+        String((percent / 100) * 5 / 100) + 'rem'
+      );
       self.els.imgWrapper.classList.toggle('result', false); // 移除结果样式
       self.els.horizontalImgWrapper.classList.toggle('result', false); // 移除结果样式
+      self.els.verticalImgWrapper.classList.toggle('result', false); // 移除结果样式
     });
 
     // 帧率滑块
