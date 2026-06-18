@@ -383,6 +383,8 @@
     // 设置背景图位置
     img.style.backgroundPosition =
       '-' + col * this.options.frameSize + 'px -' + row * this.options.frameSize + 'px';
+    // 设置精灵编号 (从1开始)
+    img.dataset.id = index + 1;
 
     // 如果序列用完，重新生成随机序列
     if (this.indexList.length === 0) {
@@ -591,6 +593,10 @@
     this.els.imgWrapper.classList.toggle('result', true); // 添加结果样式
     this.els.horizontalImgWrapper.classList.toggle('result', true); // 添加结果样式
     this.els.verticalImgWrapper.classList.toggle('result', true); // 添加结果样式
+    
+    // 获取当前抽中的精灵编号并保存到 localStorage
+    this.saveToHistory();
+    
     // 获取音效播放完成后恢复按钮状态
     this.musicGet.once('end', function () {
       self.enableStart = true; // 允许再次开始
@@ -608,7 +614,46 @@
     this.horizontalEndScrollX = actualMin * -1;
   };
 
-  PokemonFlash.prototype.setVerticalEndScrollY = function () {
+  // 保存抽取历史到 localStorage
+  PokemonFlash.prototype.saveToHistory = function () {
+    var id = this.getCurrentPokemonId();
+    if (!id) return;
+    var key = 'PokemonFlashHistory_' + id;
+    var count = parseInt(localStorage.getItem(key) || '0', 10);
+    localStorage.setItem(key, count + 1);
+  };
+
+  // 获取当前显示的精灵编号
+  PokemonFlash.prototype.getCurrentPokemonId = function () {
+    if (this.flashMode === 'static') {
+      return this.els.mainImg.dataset.id;
+    } else if (this.flashMode === 'horizontal') {
+      var minDist = Number.POSITIVE_INFINITY;
+      var resultImg = null;
+      this.els.horizontalImgs.forEach(function (img) {
+        var dist = Math.abs(img.left);
+        if (dist < minDist) {
+          minDist = dist;
+          resultImg = img;
+        }
+      });
+      return resultImg ? resultImg.dataset.id : null;
+    } else if (this.flashMode === 'vertical') {
+      var minDist = Number.POSITIVE_INFINITY;
+      var resultImg = null;
+      this.els.verticalImgs.forEach(function (img) {
+        var dist = Math.abs(img.top);
+        if (dist < minDist) {
+          minDist = dist;
+          resultImg = img;
+        }
+      });
+      return resultImg ? resultImg.dataset.id : null;
+    }
+    return null;
+  };
+
+  PokemonFlash.prototype.setHorizontalEndScrollX = function () {
     let min = Number.POSITIVE_INFINITY;
     let actualMin = 0;
     this.els.verticalImgs.forEach(function (img) {
