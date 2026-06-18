@@ -618,9 +618,15 @@
   PokemonFlash.prototype.saveToHistory = function () {
     var id = this.getCurrentPokemonId();
     if (!id) return;
-    var key = 'PokemonFlashHistory_' + id;
-    var count = parseInt(localStorage.getItem(key) || '0', 10);
-    localStorage.setItem(key, count + 1);
+    var key = 'PokemonFlashHistory';
+    var history;
+    try {
+      history = JSON.parse(localStorage.getItem(key) || '{}');
+    } catch (e) {
+      history = {};
+    }
+    history[id] = (history[id] || 0) + 1;
+    localStorage.setItem(key, JSON.stringify(history));
   };
 
   // 获取当前显示的精灵编号
