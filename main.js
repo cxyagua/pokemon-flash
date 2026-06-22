@@ -719,7 +719,7 @@
     return null;
   };
 
-  PokemonFlash.prototype.setVerticalEndScrollX = function () {
+  PokemonFlash.prototype.setVerticalEndScrollY = function () {
     let min = Number.POSITIVE_INFINITY;
     let actualMin = 0;
     this.els.verticalImgs.forEach(function (img) {
