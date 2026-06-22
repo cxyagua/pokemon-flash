@@ -119,6 +119,28 @@ html {
   transform: translate(30%, 30%);
 }
 
+.img-wrapper-result {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+}
+@keyframes collected {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate(calc(50vw - .88rem), calc(-46vh + 0.36rem)) scale(.2);
+  }
+}
+.img-wrapper-result.collected {
+  animation: collected 1s ease-in;
+  animation-fill-mode: forwards;
+}
+
 .img-wrapper-horizontal {}
 .img-wrapper-horizontal .img {
   position: absolute;

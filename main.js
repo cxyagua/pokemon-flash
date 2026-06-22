@@ -103,6 +103,7 @@
       horizontalImgWrapper: '#img-wrapper-horizontal',
       verticalImgWrapper: '#img-wrapper-vertical',
       imgWrapper: '#img-wrapper',
+      resultImgWrapper: '#img-wrapper-result',
       startBtn: '#btn-start',
       startBtnText: '#btn-start .btn-text',
       settingPanel: '#setting-panel',
@@ -147,6 +148,8 @@
     this.els.verticalImgWrapper = document.querySelector(s.verticalImgWrapper); // 垂直精灵图包装器
     this.els.verticalImgs = this.els.verticalImgWrapper.querySelectorAll('.img'); // 垂直精灵图
     this.els.imgWrapper = document.querySelector(s.imgWrapper); // 图片包装器
+    this.els.resultImgWrapper = document.querySelector(s.resultImgWrapper); // 结果图片包装器
+    this.els.resultImg = this.els.resultImgWrapper.querySelector('.img'); // 结果图片
     this.els.startBtn = document.querySelector(s.startBtn); // 开始按钮
     this.els.startBtnText = document.querySelector(s.startBtnText); // 开始按钮文字
     this.els.settingPanel = document.querySelector(s.settingPanel); // 设置面板
@@ -373,6 +376,7 @@
       self.scale = window.innerWidth / self.options.baseWidth;
       if (self.flashMode === 'static') {
         self.els.imgWrapper.style.zoom = String(self.scale);
+        self.els.resultImgWrapper.style.zoom = String(self.scale);
       } else if (self.flashMode === 'horizontal') {
         self.els.horizontalImgWrapper.style.zoom = String(self.scale);
       } else if (self.flashMode === 'vertical') {
@@ -386,6 +390,7 @@
     this.scale = window.innerWidth / this.options.baseWidth;
     if (this.flashMode === 'static') {
       this.els.imgWrapper.style.zoom = String(this.scale);
+      this.els.resultImgWrapper.style.zoom = String(this.scale);
     } else if (this.flashMode === 'horizontal') {
       this.els.horizontalImgWrapper.style.zoom = String(this.scale);
       // 设置初始位置
@@ -629,6 +634,31 @@
     
     // 获取音效播放完成后恢复按钮状态
     this.musicGet.once('end', function () {
+      // 播放收集动画
+      var id = self.getCurrentPokemonId();
+      if (id) {
+        var index = parseInt(id, 10) - 1;
+        var row = Math.floor(index / self.options.cols);
+        var col = index % self.options.cols;
+        
+        self.els.resultImg.style.backgroundPosition =
+          '-' + col * self.options.frameSize + 'px -' + row * self.options.frameSize + 'px';
+        self.els.resultImg.dataset.id = id; 
+        
+        self.els.resultImgWrapper.style.display = 'block';
+        self.els.resultImgWrapper.classList.add('collected');
+        
+        setTimeout(function () {
+          self.els.resultImgWrapper.style.display = 'none';
+          self.els.resultImgWrapper.classList.remove('collected');
+          
+          // 给collection按钮添加rubberBand动画
+          self.els.collectionBtn.classList.add('animate__rubberBand');
+          setTimeout(function () {
+            self.els.collectionBtn.classList.remove('animate__rubberBand');
+          }, 600);
+        }, 1000);
+      }
       self.enableStart = true; // 允许再次开始
       self.els.startBtn.classList.toggle('disabled', false); // 启用按钮
     });
