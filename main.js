@@ -49,6 +49,7 @@
     this.settingAniTimeout = null; // 设置面板动画定时器
     this.settingSliderInited = false; // 滑块是否已初始化
     this.settingShow = false; // 设置面板是否显示
+    this.collectionShow = false; // 图鉴面板是否显示
 
     this.FPS = this.options.fps; // 帧率
     this.FRAME_TIME = 1000 / this.FPS; // 每帧时间（毫秒）
@@ -115,6 +116,11 @@
       settingGrayValue: '#setting-gray-value',
       settingRectMask: '#setting-rect-mark',
       rectMask: '#rect-mask',
+      collectionBtn: '#collection',
+      collectionPanel: '#collection-panel',
+      collectionClose: '#collection-close',
+      collectionContent: '#collection-content',
+      collectionCount: '#collection-count',
     },
   };
 
@@ -154,15 +160,24 @@
     this.els.settingGrayValue = document.querySelector(s.settingGrayValue); // 灰度滑块
     this.els.settingRectMask = document.querySelector(s.settingRectMask); // 外框遮罩开关
     this.els.rectMask = document.querySelector(s.rectMask); // 外框遮罩
+    this.els.collectionBtn = document.querySelector(s.collectionBtn); // 图鉴按钮
+    this.els.collectionPanel = document.querySelector(s.collectionPanel); // 图鉴面板
+    this.els.collectionClose = document.querySelector(s.collectionClose); // 图鉴关闭按钮
+    this.els.collectionContent = document.querySelector(s.collectionContent); // 图鉴内容
+    this.els.collectionCount = document.querySelector(s.collectionCount); // 图鉴计数
+    this.els.collectionContent.addEventListener('touchmove', function (e) {
+      e.stopPropagation();
+    });
   };
 
   // 绑定事件监听器
   PokemonFlash.prototype.bindEvents = function () {
     var self = this; // 保存 this 引用
 
-    // 应用容器点击：关闭设置面板
+    // 应用容器点击：关闭设置面板和图鉴面板
     this.els.app.addEventListener('click', function (e) {
       self.closeSetting(e);
+      self.closeCollection(e);
       e.stopPropagation();
     });
 
@@ -213,6 +228,21 @@
     // 设置关闭按钮点击：关闭设置面板
     this.els.settingBtnClose.addEventListener('click', function (e) {
       self.closeSetting(e);
+    });
+
+    // 图鉴面板点击：阻止事件冒泡
+    this.els.collectionPanel.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
+
+    // 图鉴按钮点击：打开图鉴面板
+    this.els.collectionBtn.addEventListener('click', function (e) {
+      self.openCollection(e);
+    });
+
+    // 图鉴关闭按钮点击：关闭图鉴面板
+    this.els.collectionClose.addEventListener('click', function (e) {
+      self.closeCollection(e);
     });
 
     // 亮度开关变化：切换亮度滤镜
@@ -659,7 +689,7 @@
     return null;
   };
 
-  PokemonFlash.prototype.setHorizontalEndScrollX = function () {
+  PokemonFlash.prototype.setVerticalEndScrollX = function () {
     let min = Number.POSITIVE_INFINITY;
     let actualMin = 0;
     this.els.verticalImgs.forEach(function (img) {
@@ -834,6 +864,81 @@
         onValueChange(e.target.value); // 调用回调
       });
     }
+  };
+
+  PokemonFlash.prototype.openCollection = function (e) {
+    if (this.collectionShow || !this.enableStart || !this.isEnd) return;
+    this.collectionShow = true;
+    this.musicClick.play();
+    this.els.collectionPanel.style.display = 'flex';
+    this.renderCollection();
+    e.stopPropagation();
+  };
+
+  PokemonFlash.prototype.closeCollection = function (e) {
+    if (!this.collectionShow) return;
+    this.collectionShow = false;
+    this.musicClick.play();
+    this.els.collectionPanel.classList.toggle('animate__slideOutDown', true);
+    var self = this;
+    setTimeout(function () {
+      self.els.collectionPanel.classList.toggle('animate__slideOutDown', false);
+      self.els.collectionPanel.classList.toggle('animate__slideInUp', true);
+      self.els.collectionPanel.style.display = 'none';
+    }, this.options.settingPanelAniDuration);
+    e.stopPropagation();
+  };
+
+  PokemonFlash.prototype.renderCollection = function () {
+    var self = this;
+    this.els.collectionContent.innerHTML = '';
+    var key = 'PokemonFlashHistory';
+    var history;
+    try {
+      history = JSON.parse(localStorage.getItem(key) || '{}');
+    } catch (e) {
+      history = {};
+    }
+    var ids = Object.keys(history).sort(function (a, b) {
+      return parseInt(a, 10) - parseInt(b, 10);
+    });
+    
+    // 更新计数显示
+    this.els.collectionCount.textContent = '(' + ids.length + '/' + this.options.total + ')';
+    
+    if (ids.length === 0) {
+      var emptyDiv = document.createElement('div');
+      emptyDiv.style.width = '100%';
+      emptyDiv.style.textAlign = 'center';
+      emptyDiv.style.color = 'rgba(255, 255, 255, 0.5)';
+      emptyDiv.style.fontSize = '.16rem';
+      emptyDiv.style.marginTop = '.5rem';
+      emptyDiv.textContent = '暂无收藏的宝可梦';
+      this.els.collectionContent.appendChild(emptyDiv);
+      return;
+    }
+    ids.forEach(function (id) {
+      var count = history[id];
+      var item = document.createElement('div');
+      item.className = 'collection-item';
+      var img = document.createElement('div');
+      img.className = 'collection-item-img';
+      var index = parseInt(id, 10) - 1;
+      var row = Math.floor(index / self.options.cols);
+      var col = index % self.options.cols;
+      img.style.backgroundPosition =
+        '-' + col * self.options.frameSize + 'px -' + row * self.options.frameSize + 'px';
+      var idSpan = document.createElement('div');
+      idSpan.className = 'collection-item-id';
+      idSpan.textContent = '#' + id;
+      var countSpan = document.createElement('div');
+      countSpan.className = 'collection-item-count';
+      countSpan.textContent = count;
+      item.appendChild(img);
+      item.appendChild(idSpan);
+      item.appendChild(countSpan);
+      self.els.collectionContent.appendChild(item);
+    });
   };
 
   // 暴露到全局
