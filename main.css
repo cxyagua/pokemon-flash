@@ -84,6 +84,40 @@ html {
   position: relative;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) inset;
 }
+.img-wrapper.rect-mask {
+  filter: none !important;
+}
+.img-wrapper.result.rect-mask .img {
+  filter: none !important;
+}
+.img-wrapper.rect-mask.mask .img {
+  filter: brightness(var(--brightness-value));
+}
+.img-wrapper.rect-mask.grayscale .img {
+  filter: grayscale(var(--grayscale-value));
+}
+.img-wrapper.rect-mask.blur .img {
+  filter: blur(var(--blur-value));
+}
+.img-wrapper.rect-mask.mask.grayscale .img {
+  filter: brightness(var(--brightness-value)) grayscale(var(--grayscale-value));
+}
+.img-wrapper.rect-mask.mask.blur .img {
+  filter: brightness(var(--brightness-value)) blur(var(--blur-value));
+}
+.img-wrapper.rect-mask.grayscale.blur .img {
+  filter: blur(var(--blur-value)) grayscale(var(--grayscale-value));
+}
+
+.img-wrapper.transparent {
+  opacity: 0;
+}
+.img-wrapper.transparent.rect-mask {
+  opacity: 1;
+}
+.img-wrapper.rect-mask.transparent .img {
+  opacity: 0;
+}
 
 #rect-mask {
   position: absolute;
@@ -117,6 +151,31 @@ html {
   bottom: 0;
   right: 0;
   transform: translate(30%, 30%);
+}
+
+.img-wrapper-result {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+}
+@keyframes collected {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate(calc(50vw - .88rem), calc(-46vh + 0.36rem)) scale(.2);
+  }
+}
+.img-wrapper-result.collected {
+  animation: collected 1s ease-in;
+  animation-fill-mode: forwards;
+}
+.img-wrapper-result.enable-rect-mask {
+  margin: 8px;
 }
 
 .img-wrapper-horizontal {}
@@ -274,6 +333,18 @@ html {
   opacity: 0;
 }
 
+/* 图鉴按钮 */
+.collection {
+  position: absolute;
+  top: .24rem;
+  right: .7rem;
+  width: .24rem;
+  height: .24rem;
+  background: url("./assets/imgs/ball.webp") no-repeat;
+  background-size: contain;
+  filter: drop-shadow(0 0.02rem 0rem #666);
+}
+
 /* 设置按钮 */
 .setting {
   position: absolute;
@@ -318,6 +389,109 @@ html {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.collection-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 90vh;
+  padding: .2rem;
+  padding-bottom: calc(.2rem + constant(safe-area-inset-bottom));
+  padding-bottom: calc(.2rem + env(safe-area-inset-bottom));
+  background: #131733;
+  border-radius: .1rem;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  z-index: 100;
+  box-shadow: 0 -.06rem .1rem 0 rgba(0, 0, 0, .3);
+  color: white;
+  font-size: .16rem;
+  display: none;
+  flex-direction: column;
+}
+
+.collection-panel-title {
+  font-size: .2rem;
+  font-weight: bold;
+  margin-bottom: .1rem;
+}
+
+.collection-count {
+  font-size: .14rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-left: .05rem;
+}
+
+.collection-panel-close {
+  position: absolute;
+  top: .2rem;
+  right: .2rem;
+  width: .2rem;
+  height: .2rem;
+  color: white;
+  font-size: .24rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.collection-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  gap: .1rem;
+  padding-right: .05rem;
+}
+
+.collection-content::-webkit-scrollbar {
+  width: .04rem;
+}
+
+.collection-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: .02rem;
+}
+
+.collection-item {
+  width: calc(25% - .075rem);
+  aspect-ratio: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: .06rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.collection-item-img {
+  width: 256px;
+  height: 256px;
+  zoom: 0.22;
+  background: url("./assets/imgs/collection_min.png") 6144px 5888px no-repeat;
+}
+
+.collection-item-id {
+  font-size: .12rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: .02rem;
+}
+
+.collection-item-count {
+  position: absolute;
+  top: .02rem;
+  right: .04rem;
+  font-size: .1rem;
+  color: #ffd700;
+  background: rgba(0, 0, 0, 0.5);
+  padding: .01rem .04rem;
+  border-radius: .04rem;
 }
 .setting-block {
   margin-top: .2rem;

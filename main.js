@@ -49,6 +49,7 @@
     this.settingAniTimeout = null; // 设置面板动画定时器
     this.settingSliderInited = false; // 滑块是否已初始化
     this.settingShow = false; // 设置面板是否显示
+    this.collectionShow = false; // 图鉴面板是否显示
 
     this.FPS = this.options.fps; // 帧率
     this.FRAME_TIME = 1000 / this.FPS; // 每帧时间（毫秒）
@@ -63,6 +64,10 @@
     });
     this.musicGet = new Howl({ src: [this.options.audio.get] });
     this.musicClick = new Howl({ src: [this.options.audio.click] });
+    this.musicSave = new Howl({ src: [this.options.audio.save] });
+    this.musicClose = new Howl({ src: [this.options.audio.close] });
+    this.musicCatch = new Howl({ src: [this.options.audio.catch] });
+    this.musicFly = new Howl({ src: [this.options.audio.fly] });
 
     this.els = {}; // 缓存的 DOM 元素
 
@@ -92,6 +97,10 @@
       battle: './assets/audios/battle.mp3',
       get: './assets/audios/get.mp3',
       click: './assets/audios/click.mp3',
+      save: './assets/audios/save.mp3',
+      close: './assets/audios/close.mp3',
+      catch: './assets/audios/catch.mp3',
+      fly: './assets/audios/fly.mp3',
     },
     selectors: { // DOM 选择器
       loading: '.loading',
@@ -102,6 +111,7 @@
       horizontalImgWrapper: '#img-wrapper-horizontal',
       verticalImgWrapper: '#img-wrapper-vertical',
       imgWrapper: '#img-wrapper',
+      resultImgWrapper: '#img-wrapper-result',
       startBtn: '#btn-start',
       startBtnText: '#btn-start .btn-text',
       settingPanel: '#setting-panel',
@@ -115,6 +125,11 @@
       settingGrayValue: '#setting-gray-value',
       settingRectMask: '#setting-rect-mark',
       rectMask: '#rect-mask',
+      collectionBtn: '#collection',
+      collectionPanel: '#collection-panel',
+      collectionClose: '#collection-close',
+      collectionContent: '#collection-content',
+      collectionCount: '#collection-count',
     },
   };
 
@@ -141,6 +156,8 @@
     this.els.verticalImgWrapper = document.querySelector(s.verticalImgWrapper); // 垂直精灵图包装器
     this.els.verticalImgs = this.els.verticalImgWrapper.querySelectorAll('.img'); // 垂直精灵图
     this.els.imgWrapper = document.querySelector(s.imgWrapper); // 图片包装器
+    this.els.resultImgWrapper = document.querySelector(s.resultImgWrapper); // 结果图片包装器
+    this.els.resultImg = this.els.resultImgWrapper.querySelector('.img'); // 结果图片
     this.els.startBtn = document.querySelector(s.startBtn); // 开始按钮
     this.els.startBtnText = document.querySelector(s.startBtnText); // 开始按钮文字
     this.els.settingPanel = document.querySelector(s.settingPanel); // 设置面板
@@ -154,15 +171,24 @@
     this.els.settingGrayValue = document.querySelector(s.settingGrayValue); // 灰度滑块
     this.els.settingRectMask = document.querySelector(s.settingRectMask); // 外框遮罩开关
     this.els.rectMask = document.querySelector(s.rectMask); // 外框遮罩
+    this.els.collectionBtn = document.querySelector(s.collectionBtn); // 图鉴按钮
+    this.els.collectionPanel = document.querySelector(s.collectionPanel); // 图鉴面板
+    this.els.collectionClose = document.querySelector(s.collectionClose); // 图鉴关闭按钮
+    this.els.collectionContent = document.querySelector(s.collectionContent); // 图鉴内容
+    this.els.collectionCount = document.querySelector(s.collectionCount); // 图鉴计数
+    this.els.collectionContent.addEventListener('touchmove', function (e) {
+      e.stopPropagation();
+    });
   };
 
   // 绑定事件监听器
   PokemonFlash.prototype.bindEvents = function () {
     var self = this; // 保存 this 引用
 
-    // 应用容器点击：关闭设置面板
+    // 应用容器点击：关闭设置面板和图鉴面板
     this.els.app.addEventListener('click', function (e) {
       self.closeSetting(e);
+      self.closeCollection(e);
       e.stopPropagation();
     });
 
@@ -213,6 +239,21 @@
     // 设置关闭按钮点击：关闭设置面板
     this.els.settingBtnClose.addEventListener('click', function (e) {
       self.closeSetting(e);
+    });
+
+    // 图鉴面板点击：阻止事件冒泡
+    this.els.collectionPanel.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
+
+    // 图鉴按钮点击：打开图鉴面板
+    this.els.collectionBtn.addEventListener('click', function (e) {
+      self.openCollection(e);
+    });
+
+    // 图鉴关闭按钮点击：关闭图鉴面板
+    this.els.collectionClose.addEventListener('click', function (e) {
+      self.closeCollection(e);
     });
 
     // 亮度开关变化：切换亮度滤镜
@@ -280,13 +321,14 @@
       self.flashModeBoot();
     });
 
-    // 亮度开关变化：切换亮度滤镜
+    // 遮罩开关变化
     this.els.settingRectMask.addEventListener('change', function (e) {
       self.musicClick.play();
       var rectMask = e.target.checked; // 开关状态
       self.els.imgWrapper.classList.toggle('rect-mask', rectMask);
       self.els.horizontalImgWrapper.classList.toggle('rect-mask', rectMask);
       self.els.verticalImgWrapper.classList.toggle('rect-mask', rectMask);
+      self.els.resultImgWrapper.classList.toggle('enable-rect-mask', rectMask);
       self.els.imgWrapper.classList.toggle('result', false);
       self.els.horizontalImgWrapper.classList.toggle('result', false);
       self.els.verticalImgWrapper.classList.toggle('result', false);
@@ -343,6 +385,7 @@
       self.scale = window.innerWidth / self.options.baseWidth;
       if (self.flashMode === 'static') {
         self.els.imgWrapper.style.zoom = String(self.scale);
+        self.els.resultImgWrapper.style.zoom = String(self.scale);
       } else if (self.flashMode === 'horizontal') {
         self.els.horizontalImgWrapper.style.zoom = String(self.scale);
       } else if (self.flashMode === 'vertical') {
@@ -356,6 +399,7 @@
     this.scale = window.innerWidth / this.options.baseWidth;
     if (this.flashMode === 'static') {
       this.els.imgWrapper.style.zoom = String(this.scale);
+      this.els.resultImgWrapper.style.zoom = String(this.scale);
     } else if (this.flashMode === 'horizontal') {
       this.els.horizontalImgWrapper.style.zoom = String(this.scale);
       // 设置初始位置
@@ -383,6 +427,8 @@
     // 设置背景图位置
     img.style.backgroundPosition =
       '-' + col * this.options.frameSize + 'px -' + row * this.options.frameSize + 'px';
+    // 设置精灵编号 (从1开始)
+    img.dataset.id = index + 1;
 
     // 如果序列用完，重新生成随机序列
     if (this.indexList.length === 0) {
@@ -591,11 +637,55 @@
     this.els.imgWrapper.classList.toggle('result', true); // 添加结果样式
     this.els.horizontalImgWrapper.classList.toggle('result', true); // 添加结果样式
     this.els.verticalImgWrapper.classList.toggle('result', true); // 添加结果样式
+    
+    // 获取当前抽中的精灵编号并保存到 localStorage
+    this.saveToHistory();
+    
+    setTimeout(function() {
+      self.playCollectAnimation();
+    }, 3000);
     // 获取音效播放完成后恢复按钮状态
     this.musicGet.once('end', function () {
       self.enableStart = true; // 允许再次开始
       self.els.startBtn.classList.toggle('disabled', false); // 启用按钮
     });
+  }
+
+  PokemonFlash.prototype.playCollectAnimation = function() {
+    var self = this;
+    // 播放收集动画
+    var id = self.getCurrentPokemonId();
+    if (id) {
+      var index = parseInt(id, 10) - 1;
+      var row = Math.floor(index / self.options.cols);
+      var col = index % self.options.cols;
+      
+      self.els.resultImg.style.backgroundPosition =
+        '-' + col * self.options.frameSize + 'px -' + row * self.options.frameSize + 'px';
+      self.els.resultImg.dataset.id = id; 
+
+      self.getImgWrapper().classList.toggle('transparent', true);
+      
+      self.els.resultImgWrapper.style.display = 'block';
+      self.els.resultImgWrapper.classList.add('collected');
+      self.musicFly.play();
+      
+      self.els.resultImgWrapper.addEventListener('animationend', function onCollectedEnd() {
+        self.els.resultImgWrapper.removeEventListener('animationend', onCollectedEnd);
+        self.els.resultImgWrapper.style.display = 'none';
+        self.els.resultImgWrapper.classList.remove('collected');
+        self.getImgWrapper().classList.toggle('transparent', false);
+      });
+
+      self.els.collectionBtn.addEventListener('animationend', function onRubberEnd() {
+        self.els.collectionBtn.removeEventListener('animationend', onRubberEnd);
+        self.els.collectionBtn.classList.remove('animate__rubberBand');
+      });
+      setTimeout(function() {
+        self.els.collectionBtn.classList.add('animate__rubberBand');
+        self.musicCatch.play();
+      }, 900);
+    }
   }
 
   PokemonFlash.prototype.setHorizontalEndScrollX = function () {
@@ -606,6 +696,51 @@
       if (min === Math.abs(img.left)) actualMin = img.left;
     });
     this.horizontalEndScrollX = actualMin * -1;
+  };
+
+  // 保存抽取历史到 localStorage
+  PokemonFlash.prototype.saveToHistory = function () {
+    var id = this.getCurrentPokemonId();
+    if (!id) return;
+    var key = 'PokemonFlashHistory';
+    var history;
+    try {
+      history = JSON.parse(localStorage.getItem(key) || '{}');
+    } catch (e) {
+      history = {};
+    }
+    history[id] = (history[id] || 0) + 1;
+    localStorage.setItem(key, JSON.stringify(history));
+  };
+
+  // 获取当前显示的精灵编号
+  PokemonFlash.prototype.getCurrentPokemonId = function () {
+    if (this.flashMode === 'static') {
+      return this.els.mainImg.dataset.id;
+    } else if (this.flashMode === 'horizontal') {
+      var minDist = Number.POSITIVE_INFINITY;
+      var resultImg = null;
+      this.els.horizontalImgs.forEach(function (img) {
+        var dist = Math.abs(img.left);
+        if (dist < minDist) {
+          minDist = dist;
+          resultImg = img;
+        }
+      });
+      return resultImg ? resultImg.dataset.id : null;
+    } else if (this.flashMode === 'vertical') {
+      var minDist = Number.POSITIVE_INFINITY;
+      var resultImg = null;
+      this.els.verticalImgs.forEach(function (img) {
+        var dist = Math.abs(img.top);
+        if (dist < minDist) {
+          minDist = dist;
+          resultImg = img;
+        }
+      });
+      return resultImg ? resultImg.dataset.id : null;
+    }
+    return null;
   };
 
   PokemonFlash.prototype.setVerticalEndScrollY = function () {
@@ -783,6 +918,81 @@
         onValueChange(e.target.value); // 调用回调
       });
     }
+  };
+
+  PokemonFlash.prototype.openCollection = function (e) {
+    if (this.collectionShow || !this.enableStart || !this.isEnd) return;
+    this.collectionShow = true;
+    this.musicSave.play();
+    this.els.collectionPanel.style.display = 'flex';
+    this.renderCollection();
+    e.stopPropagation();
+  };
+
+  PokemonFlash.prototype.closeCollection = function (e) {
+    if (!this.collectionShow) return;
+    this.collectionShow = false;
+    this.musicClose.play();
+    this.els.collectionPanel.classList.toggle('animate__slideOutDown', true);
+    var self = this;
+    setTimeout(function () {
+      self.els.collectionPanel.classList.toggle('animate__slideOutDown', false);
+      self.els.collectionPanel.classList.toggle('animate__slideInUp', true);
+      self.els.collectionPanel.style.display = 'none';
+    }, this.options.settingPanelAniDuration);
+    e.stopPropagation();
+  };
+
+  PokemonFlash.prototype.renderCollection = function () {
+    var self = this;
+    this.els.collectionContent.innerHTML = '';
+    var key = 'PokemonFlashHistory';
+    var history;
+    try {
+      history = JSON.parse(localStorage.getItem(key) || '{}');
+    } catch (e) {
+      history = {};
+    }
+    var ids = Object.keys(history).sort(function (a, b) {
+      return parseInt(a, 10) - parseInt(b, 10);
+    });
+    
+    // 更新计数显示
+    this.els.collectionCount.textContent = '(' + ids.length + '/' + this.options.total + ')';
+    
+    if (ids.length === 0) {
+      var emptyDiv = document.createElement('div');
+      emptyDiv.style.width = '100%';
+      emptyDiv.style.textAlign = 'center';
+      emptyDiv.style.color = 'rgba(255, 255, 255, 0.5)';
+      emptyDiv.style.fontSize = '.16rem';
+      emptyDiv.style.marginTop = '.5rem';
+      emptyDiv.textContent = '暂无收藏的宝可梦';
+      this.els.collectionContent.appendChild(emptyDiv);
+      return;
+    }
+    ids.forEach(function (id) {
+      var count = history[id];
+      var item = document.createElement('div');
+      item.className = 'collection-item';
+      var img = document.createElement('div');
+      img.className = 'collection-item-img';
+      var index = parseInt(id, 10) - 1;
+      var row = Math.floor(index / self.options.cols);
+      var col = index % self.options.cols;
+      img.style.backgroundPosition =
+        '-' + col * self.options.frameSize + 'px -' + row * self.options.frameSize + 'px';
+      var idSpan = document.createElement('div');
+      idSpan.className = 'collection-item-id';
+      idSpan.textContent = '#' + id;
+      var countSpan = document.createElement('div');
+      countSpan.className = 'collection-item-count';
+      countSpan.textContent = count;
+      item.appendChild(img);
+      item.appendChild(idSpan);
+      item.appendChild(countSpan);
+      self.els.collectionContent.appendChild(item);
+    });
   };
 
   // 暴露到全局
