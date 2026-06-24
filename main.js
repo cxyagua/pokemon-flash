@@ -64,6 +64,10 @@
     });
     this.musicGet = new Howl({ src: [this.options.audio.get] });
     this.musicClick = new Howl({ src: [this.options.audio.click] });
+    this.musicSave = new Howl({ src: [this.options.audio.save] });
+    this.musicClose = new Howl({ src: [this.options.audio.close] });
+    this.musicCatch = new Howl({ src: [this.options.audio.catch] });
+    this.musicFly = new Howl({ src: [this.options.audio.fly] });
 
     this.els = {}; // 缓存的 DOM 元素
 
@@ -93,6 +97,10 @@
       battle: './assets/audios/battle.mp3',
       get: './assets/audios/get.mp3',
       click: './assets/audios/click.mp3',
+      save: './assets/audios/save.mp3',
+      close: './assets/audios/close.mp3',
+      catch: './assets/audios/catch.mp3',
+      fly: './assets/audios/fly.mp3',
     },
     selectors: { // DOM 选择器
       loading: '.loading',
@@ -313,13 +321,14 @@
       self.flashModeBoot();
     });
 
-    // 亮度开关变化：切换亮度滤镜
+    // 遮罩开关变化
     this.els.settingRectMask.addEventListener('change', function (e) {
       self.musicClick.play();
       var rectMask = e.target.checked; // 开关状态
       self.els.imgWrapper.classList.toggle('rect-mask', rectMask);
       self.els.horizontalImgWrapper.classList.toggle('rect-mask', rectMask);
       self.els.verticalImgWrapper.classList.toggle('rect-mask', rectMask);
+      self.els.resultImgWrapper.classList.toggle('enable-rect-mask', rectMask);
       self.els.imgWrapper.classList.toggle('result', false);
       self.els.horizontalImgWrapper.classList.toggle('result', false);
       self.els.verticalImgWrapper.classList.toggle('result', false);
@@ -632,36 +641,51 @@
     // 获取当前抽中的精灵编号并保存到 localStorage
     this.saveToHistory();
     
+    setTimeout(function() {
+      self.playCollectAnimation();
+    }, 3000);
     // 获取音效播放完成后恢复按钮状态
     this.musicGet.once('end', function () {
-      // 播放收集动画
-      var id = self.getCurrentPokemonId();
-      if (id) {
-        var index = parseInt(id, 10) - 1;
-        var row = Math.floor(index / self.options.cols);
-        var col = index % self.options.cols;
-        
-        self.els.resultImg.style.backgroundPosition =
-          '-' + col * self.options.frameSize + 'px -' + row * self.options.frameSize + 'px';
-        self.els.resultImg.dataset.id = id; 
-        
-        self.els.resultImgWrapper.style.display = 'block';
-        self.els.resultImgWrapper.classList.add('collected');
-        
-        setTimeout(function () {
-          self.els.resultImgWrapper.style.display = 'none';
-          self.els.resultImgWrapper.classList.remove('collected');
-          
-          // 给collection按钮添加rubberBand动画
-          self.els.collectionBtn.classList.add('animate__rubberBand');
-          setTimeout(function () {
-            self.els.collectionBtn.classList.remove('animate__rubberBand');
-          }, 600);
-        }, 1000);
-      }
       self.enableStart = true; // 允许再次开始
       self.els.startBtn.classList.toggle('disabled', false); // 启用按钮
     });
+  }
+
+  PokemonFlash.prototype.playCollectAnimation = function() {
+    var self = this;
+    // 播放收集动画
+    var id = self.getCurrentPokemonId();
+    if (id) {
+      var index = parseInt(id, 10) - 1;
+      var row = Math.floor(index / self.options.cols);
+      var col = index % self.options.cols;
+      
+      self.els.resultImg.style.backgroundPosition =
+        '-' + col * self.options.frameSize + 'px -' + row * self.options.frameSize + 'px';
+      self.els.resultImg.dataset.id = id; 
+
+      self.getImgWrapper().classList.toggle('transparent', true);
+      
+      self.els.resultImgWrapper.style.display = 'block';
+      self.els.resultImgWrapper.classList.add('collected');
+      self.musicFly.play();
+      
+      self.els.resultImgWrapper.addEventListener('animationend', function onCollectedEnd() {
+        self.els.resultImgWrapper.removeEventListener('animationend', onCollectedEnd);
+        self.els.resultImgWrapper.style.display = 'none';
+        self.els.resultImgWrapper.classList.remove('collected');
+        self.getImgWrapper().classList.toggle('transparent', false);
+      });
+
+      self.els.collectionBtn.addEventListener('animationend', function onRubberEnd() {
+        self.els.collectionBtn.removeEventListener('animationend', onRubberEnd);
+        self.els.collectionBtn.classList.remove('animate__rubberBand');
+      });
+      setTimeout(function() {
+        self.els.collectionBtn.classList.add('animate__rubberBand');
+        self.musicCatch.play();
+      }, 900);
+    }
   }
 
   PokemonFlash.prototype.setHorizontalEndScrollX = function () {
@@ -899,7 +923,7 @@
   PokemonFlash.prototype.openCollection = function (e) {
     if (this.collectionShow || !this.enableStart || !this.isEnd) return;
     this.collectionShow = true;
-    this.musicClick.play();
+    this.musicSave.play();
     this.els.collectionPanel.style.display = 'flex';
     this.renderCollection();
     e.stopPropagation();
@@ -908,7 +932,7 @@
   PokemonFlash.prototype.closeCollection = function (e) {
     if (!this.collectionShow) return;
     this.collectionShow = false;
-    this.musicClick.play();
+    this.musicClose.play();
     this.els.collectionPanel.classList.toggle('animate__slideOutDown', true);
     var self = this;
     setTimeout(function () {

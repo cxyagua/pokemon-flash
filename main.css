@@ -84,6 +84,40 @@ html {
   position: relative;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) inset;
 }
+.img-wrapper.rect-mask {
+  filter: none !important;
+}
+.img-wrapper.result.rect-mask .img {
+  filter: none !important;
+}
+.img-wrapper.rect-mask.mask .img {
+  filter: brightness(var(--brightness-value));
+}
+.img-wrapper.rect-mask.grayscale .img {
+  filter: grayscale(var(--grayscale-value));
+}
+.img-wrapper.rect-mask.blur .img {
+  filter: blur(var(--blur-value));
+}
+.img-wrapper.rect-mask.mask.grayscale .img {
+  filter: brightness(var(--brightness-value)) grayscale(var(--grayscale-value));
+}
+.img-wrapper.rect-mask.mask.blur .img {
+  filter: brightness(var(--brightness-value)) blur(var(--blur-value));
+}
+.img-wrapper.rect-mask.grayscale.blur .img {
+  filter: blur(var(--blur-value)) grayscale(var(--grayscale-value));
+}
+
+.img-wrapper.transparent {
+  opacity: 0;
+}
+.img-wrapper.transparent.rect-mask {
+  opacity: 1;
+}
+.img-wrapper.rect-mask.transparent .img {
+  opacity: 0;
+}
 
 #rect-mask {
   position: absolute;
@@ -139,6 +173,9 @@ html {
 .img-wrapper-result.collected {
   animation: collected 1s ease-in;
   animation-fill-mode: forwards;
+}
+.img-wrapper-result.enable-rect-mask {
+  margin: 8px;
 }
 
 .img-wrapper-horizontal {}
